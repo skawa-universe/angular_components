@@ -24,23 +24,22 @@ class MaterialTreeNode<T> {
   final OptionGroup<T> _EMPTY_OPTION_GROUP = OptionGroup<T>(const []);
 
   final _expandedNodes = Map<T, Iterable<OptionGroup<T>>>.identity();
-  var _disposer = Disposer.multi();
+  Disposer? _disposer = Disposer.multi();
   final MaterialTreeRoot<T> _root;
   final ChangeDetectorRef _changeDetector;
 
   bool _expandAll = false;
-  OptionGroup<T> _group;
-  Parent<T, Iterable<OptionGroup<T>>> _parent;
-  IsExpandable<T> _isExpandable;
-  Selectable<T> _selectable;
+  late OptionGroup<T> _group;
+  late Parent<T, Iterable<OptionGroup<T>>> _parent;
+  late IsExpandable<T> _isExpandable;
+  late Selectable<T> _selectable;
 
   /// Create a new tree node.
   ///
   /// Actual implementation of how to retrieve nested items is provided.
   ///
   /// May specify a custom [isExpandable].
-  MaterialTreeNode(this._root, this._changeDetector,
-      {IsExpandable<T> isExpandable}) {
+  MaterialTreeNode(this._root, this._changeDetector, {IsExpandable<T>? isExpandable}) {
     _group = _EMPTY_OPTION_GROUP;
     if (!_root.supportsHierarchy) {
       _isExpandable = (_) => false;
@@ -50,9 +49,9 @@ class MaterialTreeNode<T> {
       _parent = _root.options as Parent<T, Iterable<OptionGroup<T>>>;
     }
     // TODO(google).
-    final Object options = _root.options;
+    final options = _root.options;
     if (options is Selectable<T>) {
-      _selectable = options;
+      _selectable = options as Selectable<T>;
     } else {
       _selectable = _AlwaysSelectable<T>();
     }
@@ -76,9 +75,10 @@ class MaterialTreeNode<T> {
 
   /// The current node.
   OptionGroup<T> get group => _group;
+
   @Input()
   set group(OptionGroup<T> group) {
-    _disposer.dispose();
+    _disposer!.dispose();
     _group = group;
     if (!expandAll) {
       _expandedNodes.clear();
@@ -88,7 +88,7 @@ class MaterialTreeNode<T> {
       if (key is MaterialTreeExpandState) {
         manualExpand = key.expanded;
         // When we receive an expansion state change event, update the option
-        _disposer.addStreamSubscription(key.expandEvents.listen((bool newVal) {
+        _disposer!.addStreamSubscription(key.expandEvents.listen((bool newVal) {
           if (newVal == _expandedNodes.containsKey(key)) return;
           if (newVal) {
             expandOption(key);
@@ -144,28 +144,24 @@ class MaterialTreeNode<T> {
 
   /// Returns whether [option] is selectable.
   bool isSelectable(T option) {
-    return _allowParentSelection &&
-            _selectable.getSelectable(option) == SelectableOption.Selectable ||
-        !isExpandable(option) &&
-            _selectable.getSelectable(option) == SelectableOption.Selectable;
+    return _allowParentSelection && _selectable.getSelectable(option) == SelectableOption.Selectable ||
+        !isExpandable(option) && _selectable.getSelectable(option) == SelectableOption.Selectable;
   }
 
   // True when flag for allowing parent selection is true for the selection
   // model type in use.
   bool get _allowParentSelection =>
-      (isMultiSelect && allowParentMultiSelection) ||
-      (!isMultiSelect && allowParentSingleSelection);
+      (isMultiSelect && allowParentMultiSelection) || (!isMultiSelect && allowParentSingleSelection);
 
   /// Whether a disabled checkbox should be rendered for this option.
   bool showDisabledCheckbox(option) =>
-      _selectable.getSelectable(option) == SelectableOption.Disabled &&
-      !hasChildren(option);
+      _selectable.getSelectable(option) == SelectableOption.Disabled && !hasChildren(option);
 
   /// Returns whether [option] is selected.
-  bool isSelected(T option) => _root.selection.isSelected(option);
+  bool isSelected(T option) => _root.selection!.isSelected(option);
 
   /// Returns any child groups of [option] that are loaded.
-  Iterable<OptionGroup> getChildGroups(option) => _expandedNodes[option];
+  Iterable<OptionGroup<T>> getChildGroups(option) => _expandedNodes[option]!;
 
   /// Expands the given [option].
   ///
@@ -221,15 +217,14 @@ class MaterialTreeNode<T> {
   bool setSelectionState(T option, bool state) {
     if (isSelected(option) == state) return state;
     if (!state) {
-      return !_root.selection.deselect(option);
+      return !_root.selection!.deselect(option);
     } else {
-      return _root.selection.select(option);
+      return _root.selection!.select(option);
     }
   }
 
   /// Selects or deselects two nodes and all the siblings in between.
-  void toggleSelectionRangeInclusive(
-      T firstNode, T lastNode, bool isSelection) {
+  void toggleSelectionRangeInclusive(T firstNode, T lastNode, bool isSelection) {
     // Only proceeds if both nodes are siblings of the same group.
     if (!group.contains(firstNode) || !group.contains(lastNode)) return;
 
@@ -243,9 +238,9 @@ class MaterialTreeNode<T> {
       }
 
       if (isSelection) {
-        _root.selection.select(node);
+        _root.selection!.select(node);
       } else {
-        _root.selection.deselect(node);
+        _root.selection!.deselect(node);
       }
 
       if (node == firstNode || node == lastNode) {
@@ -261,8 +256,7 @@ class MaterialTreeNode<T> {
   /// Whether to use a dynamic component to render an option.
   // TODO(google): Rename this is to control whether to use dynamic component
   // loader.
-  bool get useComponentRenderer =>
-      _root.factoryRenderer != null || _root.componentRenderer != null;
+  bool get useComponentRenderer => _root.factoryRenderer != null;
 
   /// Whether to use a simple text formatter to render an option.
   bool get useItemRenderer => !useComponentRenderer;
@@ -270,13 +264,8 @@ class MaterialTreeNode<T> {
   /// Whether to show the selection state within a dropdown.
   bool get showSelectionState => isMultiSelect || !_root.optimizeForDropdown;
 
-  /// Converts [T] into a component type (requires [useComponentRenderer]).
-  Type getComponentType(option) =>
-      _root.componentRenderer != null ? _root.componentRenderer(option) : null;
-
   /// Converts [T] into a component factory (requires [factoryRenderer]).
-  ComponentFactory getComponentFactory(option) =>
-      _root.factoryRenderer != null ? _root.factoryRenderer(option) : null;
+  ComponentFactory? getComponentFactory(option) => _root.factoryRenderer != null ? _root.factoryRenderer!(option) : null;
 
   /// Converts [T] into a text equivalent (requires [useItemRenderer]).
   String getOptionAsText(T option) {
@@ -288,7 +277,7 @@ class MaterialTreeNode<T> {
   ///
   /// Currently a no-op if T doesn't implement [MaterialTreeExpandState].
   void onDestroy() {
-    _disposer.dispose();
+    _disposer!.dispose();
     // Cause a NPE if we attempt to use the disposer after being destroyed
     _disposer = null;
   }
@@ -307,7 +296,7 @@ class _NotAParent<P, C> implements Parent<P, C> {
   bool hasChildren(P item) => false;
 
   @override
-  DisposableFuture<C> childrenOf(P parent, [Object filterQuery]) {
+  DisposableFuture<C> childrenOf(P parent, [Object? filterQuery]) {
     throw UnsupportedError('Does not support hierarchy');
   }
 }

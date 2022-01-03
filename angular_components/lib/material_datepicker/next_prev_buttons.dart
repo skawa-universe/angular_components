@@ -52,7 +52,7 @@ export 'package:angular_components/src/material_datepicker/sequential.dart';
 class NextPrevComponent implements OnDestroy {
   final ChangeDetectorRef _changeDetector;
   final Disposer _modelListeners = Disposer.multi();
-  Sequential _model;
+  Sequential? _model;
   bool _hasNext = false;
   bool _hasPrev = false;
 
@@ -64,20 +64,20 @@ class NextPrevComponent implements OnDestroy {
 
   /// Something that can logically move to a next/prev value.
   @Input()
-  set model(Sequential newModel) {
+  set model(Sequential? newModel) {
     _modelListeners.dispose();
     _model = newModel;
-    _hasNext = newModel?.hasNext?.value ?? false;
-    _hasPrev = newModel?.hasPrev?.value ?? false;
+    _hasNext = newModel?.hasNext.value ?? false;
+    _hasPrev = newModel?.hasPrev.value ?? false;
 
     if (newModel != null) {
       _modelListeners
         ..addStreamSubscription(newModel.hasNext.stream.listen((newValue) {
-          _hasNext = newValue;
+          _hasNext = newValue!;
           _changeDetector.markForCheck();
         }))
         ..addStreamSubscription(newModel.hasPrev.stream.listen((newValue) {
-          _hasPrev = newValue;
+          _hasPrev = newValue!;
           _changeDetector.markForCheck();
         }));
     }
@@ -97,11 +97,11 @@ class NextPrevComponent implements OnDestroy {
   bool get hasPrev => _hasPrev;
 
   void next() {
-    if (!isNextDisabled) _model.next();
+    if (!isNextDisabled) _model!.next();
   }
 
   void prev() {
-    if (!isPrevDisabled) _model.prev();
+    if (!isPrevDisabled) _model!.prev();
   }
 
   /// Whether changing the selection should be disabled.

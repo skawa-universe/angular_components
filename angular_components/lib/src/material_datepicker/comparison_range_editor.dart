@@ -43,15 +43,16 @@ import 'package:angular_components/utils/angular/scroll_host/angular_2.dart';
 )
 class ComparisonRangeEditorComponent {
   final NgZone _ngZone;
-  final ScrollHost _scrollHost;
+  final ScrollHost? _scrollHost;
+
   ComparisonRangeEditorComponent(this._ngZone, @Optional() this._scrollHost);
 
   /// A mutable model describing a comparison date range. The only expected
   /// non-test implementation is [DateRangeEditorModel].
   @Input()
-  HasComparisonRange model;
+  late HasComparisonRange model;
   final Map<ComparisonOption, String> _optionMsgCache = {};
-  DatepickerDateRange _primaryDateRange;
+  DatepickerDateRange? _primaryDateRange;
 
   // Handle the comparison toggle.
   bool get comparisonEnabled => model.comparisonEnabled;
@@ -61,17 +62,15 @@ class ComparisonRangeEditorComponent {
     if (enabled && _scrollHost != null) {
       // When users turn on toggle, scrolls to the end to make
       // comparison options discoverable.
-      _ngZone.runAfterChangesObserved(
-          () => _scrollHost?.scrollToPosition(_scrollHost.scrollLength));
+      _ngZone.runAfterChangesObserved(() => _scrollHost?.scrollToPosition(_scrollHost!.scrollLength));
     }
   }
 
   static final comparisonHeaderMsg = Intl.message('Compare',
-      name: 'comparisonHeaderMsg',
-      desc: 'Label for a toggle that turns time comparison on/off.');
+      name: 'comparisonHeaderMsg', desc: 'Label for a toggle that turns time comparison on/off.');
 
   /// Gets display message from given option.
-  String comparisonOptionMsg(ComparisonOption option) {
+  String? comparisonOptionMsg(ComparisonOption option) {
     if (_primaryDateRange != model.primaryRange) {
       _updateOptionMsg();
       _primaryDateRange = model.primaryRange;
@@ -81,9 +80,7 @@ class ComparisonRangeEditorComponent {
 
   void _updateOptionMsg() {
     for (var option in model.validComparisonOptions) {
-      _optionMsgCache[option] =
-          option.computeComparisonRange(model.primaryRange)?.title ??
-              option.displayName;
+      _optionMsgCache[option] = option.computeComparisonRange(model.primaryRange)?.title ?? option.displayName;
     }
   }
 }

@@ -25,10 +25,9 @@
 &ngsp;
 <span *ngIf="valueHasLabel" class="label">{{valueLabel}}</span>
 &ngsp;
-<dynamic-component *ngIf="componentType != null || componentFactory != null"
+<dynamic-component *ngIf="componentFactory != null"
     class="dynamic-item"
     (onLoad)="onLoadCustomComponent($event)"
-    [componentType]="componentType"
     [componentFactory]="componentFactory"
     [value]="value">
 </dynamic-component>

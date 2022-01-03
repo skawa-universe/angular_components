@@ -19,15 +19,15 @@
        attr.selectable="{{step.isSelectable}}"
        [disabled]="step.isNotSelectable"
        buttonDecorator
-       (trigger)="jumpStep(step.index)">
+       (trigger)="jumpStep(step.index!)">
     <!-- Step number in circle -->
         <span class="stepper-step-index"
               [attr.orientation]="orientation"
-              [attr.active]="step.active"
-              [attr.complete]="step.complete"
+              [attr.active]="step.active.toString()"
+              [attr.complete]="step.complete.toString()"
               [class.partially-complete]="step.partiallyComplete"
               [class.can-select]="step.isSelectable">
-          {{step.complete ? "" : step.index +1}}
+          {{step.complete ? "" : step.index! + 1}}
           <span *ngIf="step.complete">
             <material-icon icon="check"></material-icon>
           </span>
@@ -37,13 +37,13 @@
          [attr.orientation]="orientation"
          [attr.size]="size">
       <span class="stepper-step-name"
-            [attr.active]="step.active"
-            [attr.complete]="step.complete">
+            [attr.active]="step.active.toString()"
+            [attr.complete]="step.complete.toString()">
         {{step.name}}
       </span>
       <div class="stepper-step-optional"
            [attr.orientation]="orientation"
-           [attr.optional]="step.isOptional"
+           [attr.optional]="step.isOptional.toString()"
            [attr.size]="size">
         {{step.isOptional ? optionalMsg : ''}}
           <span *ngIf="step.isSelectable">
@@ -68,20 +68,20 @@
       <template [ngIf]="step.active || keepInactiveStepsInDom">
         <div class="provided-content mixin"
              [class.hidden]="!step.active && keepInactiveStepsInDom">
-          <template [portalHost]="steps[step.index]"></template>
-          <span *ngIf="!activeStep.hideButtons"
+          <template [portalHost]="steps[step.index!]"></template>
+          <span *ngIf="!activeStep!.hideButtons"
                 class="button-container">
             <material-yes-no-buttons
                 class="stepper-yes-no-buttons"
                 raised
                 yesHighlighted
-                [disabled]="activeStep.busy"
-                [yesDisabled]="!activeStep.canContinue"
-                (yes)="stepForward($event, activeStep)"
-                (no)="stepBackward($event, activeStep)"
+                [disabled]="activeStep!.busy"
+                [yesDisabled]="!activeStep!.canContinue"
+                (yes)="stepForward($event, activeStep!)"
+                (no)="stepBackward($event, activeStep!)"
                 [yesText]="yesText"
                 [noText]="noText"
-                [noDisplayed]="!activeStep.cancelHidden && activeStep.index != 0">
+                [noDisplayed]="!activeStep!.cancelHidden && activeStep!.index != 0">
             </material-yes-no-buttons>
           </span>
         </div>
@@ -111,17 +111,17 @@
       <template [portalHost]="step"></template>
     </div>
   </ng-container>
-    <span *ngIf="!activeStep.hideButtons" class="button-container">
+    <span *ngIf="!activeStep!.hideButtons" class="button-container">
       <material-yes-no-buttons
           raised
           yesHighlighted
-          [disabled]="activeStep.busy"
-          [yesDisabled]="!activeStep.canContinue"
-          (yes)="stepForward($event, activeStep)"
-          (no)="stepBackward($event, activeStep)"
+          [disabled]="activeStep!.busy"
+          [yesDisabled]="!activeStep!.canContinue"
+          (yes)="stepForward($event, activeStep!)"
+          (no)="stepBackward($event, activeStep!)"
           [yesText]="yesText"
           [noText]="noText"
-          [noDisplayed]="!activeStep.cancelHidden && activeStep.index != 0">
+          [noDisplayed]="!activeStep!.cancelHidden && activeStep!.index != 0">
       </material-yes-no-buttons>
     </span>
 </div>

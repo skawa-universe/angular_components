@@ -53,9 +53,11 @@ class MaterialStepperComponent {
   static const defaultSize = sizeDefault;
   List<StepDirective> steps = [];
 
-  int _activeStepIndex;
-  int get activeStepIndex => _activeStepIndex;
-  set activeStepIndex(int value) {
+  int? _activeStepIndex;
+
+  int? get activeStepIndex => _activeStepIndex;
+
+  set activeStepIndex(int? value) {
     _activeStepIndex = value;
     _recalculatePropertiesOfSteps();
   }
@@ -64,11 +66,10 @@ class MaterialStepperComponent {
 
   var _orientation = defaultOrientation;
   var _size = defaultSize;
-  String _legalJumps;
+  late String _legalJumps;
 
-  List<StepDirective> _stepDirectiveList;
-  final _activeStepController =
-      StreamController<StepDirective>.broadcast(sync: true);
+  late List<StepDirective> _stepDirectiveList;
+  final _activeStepController = StreamController<StepDirective>.broadcast(sync: true);
   final _stepAriaLabel = <StepDirective, String>{};
 
   @ContentChildren(StepDirective)
@@ -119,12 +120,12 @@ class MaterialStepperComponent {
     AsyncActionController<bool> ctrl = AsyncActionController<bool>();
     step.requestStepContinue(ctrl.action);
     ctrl.execute(() {
-      activeStep.complete = true;
-      if (activeStep.isLast) {
+      activeStep!.complete = true;
+      if (activeStep!.isLast) {
         stepperDone = true;
         return true;
       }
-      return _stepTo(activeStepIndex + 1);
+      return _stepTo(activeStepIndex! + 1);
     });
   }
 
@@ -139,8 +140,8 @@ class MaterialStepperComponent {
     AsyncActionController<bool> ctrl = AsyncActionController<bool>();
     step.requestStepCancel(ctrl.action);
     ctrl.execute(() {
-      activeStep.complete = false;
-      return _stepTo(activeStepIndex - 1);
+      activeStep!.complete = false;
+      return _stepTo(activeStepIndex! - 1);
     });
   }
 
@@ -177,8 +178,7 @@ class MaterialStepperComponent {
   /// content is laid out in a separate content <div> (eg. horizontal)
   /// while for others, it is more natural if the step content is laid out
   /// together with its other DOM elements (vertical, default-size).
-  bool get shouldInlineContent =>
-      orientation == vertical && size == sizeDefault;
+  bool get shouldInlineContent => orientation == vertical && size == sizeDefault;
 
   String get orientation => _orientation;
 
@@ -186,8 +186,7 @@ class MaterialStepperComponent {
 
   /// Get the step directive that is currently active.  The stepper will
   /// only have 1 step active at a time.
-  StepDirective get activeStep =>
-      steps.isNotEmpty ? steps[activeStepIndex] : null;
+  StepDirective? get activeStep => steps.isNotEmpty ? steps[activeStepIndex!] : null;
 
   /// Jumps (defined as step-switches not triggered by the Continue/Cancel
   /// buttons) that are legal.
@@ -208,7 +207,7 @@ class MaterialStepperComponent {
   /// This is helpful for ensuring that animations don't go above or behind
   /// the stepper.
   @ViewChild('stepper')
-  HtmlElement stepperNativeElement;
+  HtmlElement? stepperNativeElement;
 
   /// Because of the button decorator enclosing the inline portal eats up
   /// SPACE and ENTER key-presses (by preventing the default on them),
@@ -237,7 +236,7 @@ class MaterialStepperComponent {
     steps[index].requestStepJump(actionController.action);
     actionController.execute(() {
       activeStepIndex = index;
-      _activeStepController.add(activeStep);
+      _activeStepController.add(activeStep!);
       return true;
     }, valueOnCancel: false);
     return actionController.action.onDone;
@@ -275,47 +274,38 @@ class MaterialStepperComponent {
           s.isSelectable = false;
           break;
         case backwards:
-          s.isSelectable = i < activeStepIndex;
+          s.isSelectable = i < activeStepIndex!;
       }
       i++;
     }
   }
 
-  String stepAriaLabel(StepDirective step) => _stepAriaLabel[step] ??=
-      _stepAriaAnnounce(step.index + 1, steps.length, step.name);
+  String stepAriaLabel(StepDirective step) =>
+      _stepAriaLabel[step] ??= _stepAriaAnnounce(step.index! + 1, steps.length, step.name!);
 
-  String get stepAriaAnnounce =>
-      activeStep == null ? '' : stepAriaLabel(activeStep);
+  String get stepAriaAnnounce => activeStep == null ? '' : stepAriaLabel(activeStep!);
 
   /// Event that fires when the active step has changed.
   @Output('activeStepChanged')
   Stream<StepDirective> get activeStepChanged => _activeStepController.stream;
 
-  static final optionalMsg = Intl.message('Optional',
-      name: 'optionalMsg',
-      desc: 'Label denoting that a step in a task flow is optional.');
+  static final optionalMsg =
+      Intl.message('Optional', name: 'optionalMsg', desc: 'Label denoting that a step in a task flow is optional.');
 
-  static final continueMsg = Intl.message('Continue',
-      name: 'continueMsg',
-      desc: 'Button for continuing to the next step in a task flow.');
+  static final continueMsg =
+      Intl.message('Continue', name: 'continueMsg', desc: 'Button for continuing to the next step in a task flow.');
 
-  static final _cancelMsg = Intl.message('Cancel',
-      name: '_cancelMsg',
-      desc: 'Button for cancelling the current step in a task flow.');
+  static final _cancelMsg =
+      Intl.message('Cancel', name: '_cancelMsg', desc: 'Button for cancelling the current step in a task flow.');
 
-  static String _stepAriaAnnounce(
-          int currentStepNumber, int totalSteps, String stepLabel) =>
+  static String _stepAriaAnnounce(int currentStepNumber, int totalSteps, String stepLabel) =>
       Intl.message('Step $currentStepNumber of $totalSteps, $stepLabel',
           name: '_stepAriaAnnounce',
           args: [currentStepNumber, totalSteps, stepLabel],
           desc: 'Message announced to visually impaired users about '
               'which step of a multi step process a user is on. '
               '[REL_NOTE: xilli/03-31-19]',
-          examples: const {
-            'currentStepNumber': 1,
-            'totalSteps': 4,
-            'stepLabel': 'Select campaign settings'
-          });
+          examples: const {'currentStepNumber': 1, 'totalSteps': 4, 'stepLabel': 'Select campaign settings'});
 }
 
 @Directive(
@@ -326,6 +316,5 @@ class MaterialStepperBackButtonTextDirective {
     stepper.noText = _msgBack;
   }
 
-  static final _msgBack = Intl.message('Back',
-      name: '_msgBack', desc: 'Text on stepper back button between steps');
+  static final _msgBack = Intl.message('Back', name: '_msgBack', desc: 'Text on stepper back button between steps');
 }

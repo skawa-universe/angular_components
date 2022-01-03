@@ -9,13 +9,12 @@ part of '../../../material_datepicker/calendar.dart';
 class CalendarMonth {
   final Date _start;
   final int startingWeekday;
-  String _title;
-  CalendarState calendarState;
-  List<CalendarWeek> _weeks;
+  late String _title;
+  CalendarState? calendarState;
+  late List<CalendarWeek> _weeks;
   List<String> _classes = [];
 
-  CalendarMonth(int year, int month,
-      {CalendarState state, this.startingWeekday = DateTime.monday})
+  CalendarMonth(int year, int month, {CalendarState? state, this.startingWeekday = DateTime.monday})
       : _start = Date(year, month),
         calendarState = state {
     _title = _start.format(DateFormat.yMMM());
@@ -27,35 +26,35 @@ class CalendarMonth {
     update(state);
   }
 
-  CalendarMonth.fromDate(Date date,
-      {CalendarState state, int startingWeekday = DateTime.monday})
-      : this(date.year, date.month,
-            state: state, startingWeekday: startingWeekday);
+  CalendarMonth.fromDate(Date date, {CalendarState? state, int startingWeekday = DateTime.monday})
+      : this(date.year, date.month, state: state, startingWeekday: startingWeekday);
 
-  CalendarMonth.fromTime(DateTime time,
-      {CalendarState state, int startingWeekday = DateTime.monday})
-      : this(time.year, time.month,
-            state: state, startingWeekday: startingWeekday);
+  CalendarMonth.fromTime(DateTime time, {CalendarState? state, int startingWeekday = DateTime.monday})
+      : this(time.year, time.month, state: state, startingWeekday: startingWeekday);
 
   Date get start => _start;
+
   int get year => _start.year;
+
   int get month => _start.month;
+
   String get title => _title;
-  List<CalendarWeek> get weeks => _weeks;
+
+  List<CalendarWeek>? get weeks => _weeks;
+
   List<String> get classes => _classes;
 
-  void update(CalendarState state) {
+  void update(CalendarState? state) {
     // TODO(google): Disable CSS transitions here somehow
     this.calendarState = state;
     if (weeks != null) {
-      weeks.forEach((w) => w.update(state));
+      weeks!.forEach((w) => w.update(state));
     }
     if (state == null || state.resolution != CalendarResolution.months) {
       _classes = [];
     } else {
       _classes = state.selections
-          .where((selection) =>
-              containsDate(selection.start) || containsDate(selection.end))
+          .where((selection) => containsDate(selection.start!) || containsDate(selection.end!))
           .expand((selection) => ['boundary', 'boundary-${selection.id}'])
           .toList();
     }
@@ -78,20 +77,18 @@ class CalendarMonth {
       newYear++;
       newMonth -= 12;
     }
-    return CalendarMonth(newYear, newMonth,
-        state: calendarState, startingWeekday: startingWeekday);
+    return CalendarMonth(newYear, newMonth, state: calendarState, startingWeekday: startingWeekday);
   }
 
   /// The difference in months between the other month and this month. If
   /// `other` is later than this month, this will be a positive number. For all
   /// `N`, `month.deltaMonths(month.addMonths(N)) == N`.
-  int deltaMonths(CalendarMonth other) =>
-      (other.year - year) * 12 + other.month - month;
+  int deltaMonths(CalendarMonth other) => (other.year - year) * 12 + other.month - month;
 
   /// Index of the row in the month that contains the day. If no days match, -1
   /// is returned.
   int getRowIndex(int day) {
-    var position = (day - 1) + weeks.first.numBlankDays;
+    var position = (day - 1) + weeks!.first.numBlankDays;
     var row = position ~/ 7;
     return displayTitleInline ? row : row + 1;
   }
@@ -99,7 +96,7 @@ class CalendarMonth {
   bool containsDate(Date date) => date.year == year && date.month == month;
 
   Iterable<CalendarWeek> _generateWeeks() sync* {
-    var week = CalendarWeek(_start, calendarState, startingWeekday);
+    CalendarWeek? week = CalendarWeek(_start, calendarState, startingWeekday);
     while (week != null) {
       yield week;
       week = week.next;
@@ -110,7 +107,7 @@ class CalendarMonth {
   /// the year, in which case return null.
   ///
   /// Based on [CalendarWeek.next].
-  CalendarMonth get next {
+  CalendarMonth? get next {
     if (month < DateTime.december) {
       return addMonths(1);
     }
@@ -151,8 +148,7 @@ class MonthRange {
   /// max is before min.
   ///
   /// - `length: int` -- Must be at least 1.
-  factory MonthRange.within(CalendarMonth min, CalendarMonth max, int length,
-      {final CalendarMonth tryToStartAt}) {
+  factory MonthRange.within(CalendarMonth? min, CalendarMonth? max, int length, {final CalendarMonth? tryToStartAt}) {
     if (length < 1) {
       throw ArgumentError.value(length, 'length', 'must be at least 1');
     }
@@ -193,8 +189,7 @@ class MonthRange {
   /// The first entry will have the same month and year as [startDate]. All
   /// entries will have the specified [state] and [startingWeekday].
   List<CalendarMonth> toList(CalendarState state, int startingWeekday) {
-    var startMonth = CalendarMonth(start.year, start.month,
-        state: state, startingWeekday: startingWeekday);
+    var startMonth = CalendarMonth(start.year, start.month, state: state, startingWeekday: startingWeekday);
     return List.generate(length, (i) => startMonth.addMonths(i));
   }
 }

@@ -21,21 +21,21 @@ typedef OptionGroupMapper<T> = List<OptionGroup<T>> Function(Iterable<T> items);
 
 /// A collection of options with an optional label.
 class OptionGroup<T> extends LabeledList<T> {
-  String get emptyLabel => _emptyLabelFcn != null ? _emptyLabelFcn() : null;
+  String? get emptyLabel => _emptyLabelFcn != null ? _emptyLabelFcn!() : null;
 
-  LabelFunction _emptyLabelFcn;
+  LabelFunction? _emptyLabelFcn;
 
   bool get hasEmptyLabel => _emptyLabelFcn != null;
 
-  OptionGroup(List<T> items, [LabelFunction labelFcn]) : super(items, labelFcn);
+  OptionGroup(List<T> items, [LabelFunction? labelFcn]) : super(items, labelFcn);
 
   OptionGroup.withLabelFunction(List<T> items,
-      [LabelFunction labelFcn, this._emptyLabelFcn])
+      [LabelFunction? labelFcn, this._emptyLabelFcn])
       : super.withLabelFunction(items, labelFcn);
 
   /// An option group with a label is recommended when multiple option groups
   /// exist in a selection list.
-  OptionGroup.withLabel(List<T> items, [String label, String emptyLabel])
+  OptionGroup.withLabel(List<T> items, [String? label, String? emptyLabel])
       : _emptyLabelFcn = emptyLabel != null ? (() => emptyLabel) : null,
         super.withLabel(items, label);
 
@@ -45,7 +45,7 @@ class OptionGroup<T> extends LabeledList<T> {
     List<T> subListItems = this.sublist(start, end);
 
     return OptionGroup.withLabelFunction(
-        subListItems, hasLabel ? null : () => uiDisplayName, _emptyLabelFcn);
+        subListItems, hasLabel ? null : () => uiDisplayName!, _emptyLabelFcn);
   }
 }
 
@@ -59,8 +59,8 @@ abstract class GroupedOptions<T> implements Disposable {
   /// [SelectionOptions] from a stream.  This list may be replaced by the data
   /// provider, so consider this list reference to be ephemeral, with the
   /// [SelectionOptions] object's property as the source of truth.
-  List<OptionGroup<T>> get optionGroups;
-  set optionGroups(List<OptionGroup<T>> value);
+  List<OptionGroup<T>>? get optionGroups;
+  set optionGroups(List<OptionGroup<T>>? value);
 
   /// All options flattened in one list.
   List<T> get optionsList;
@@ -82,10 +82,10 @@ abstract class GroupedOptions<T> implements Disposable {
 class SelectionOptions<T> extends GroupedOptions<T>
     implements ObserveAware<List<OptionGroup<T>>> {
   final _controller =
-      StreamController<List<OptionGroup<T>>>.broadcast(sync: true);
+      StreamController<List<OptionGroup<T>>?>.broadcast(sync: true);
 
-  List<T> _flattenedList;
-  List<OptionGroup<T>> _optionGroups;
+  late List<T> _flattenedList;
+  List<OptionGroup<T>>? _optionGroups;
 
   /// Creates an instance with the given option groups.
   SelectionOptions(List<OptionGroup<T>> optionGroups) {
@@ -94,7 +94,7 @@ class SelectionOptions<T> extends GroupedOptions<T>
 
   /// Creates an instance from a list of options.
   // TODO(google): Rename this to withOptions.
-  SelectionOptions.fromList(List<T> options, {String label})
+  SelectionOptions.fromList(List<T> options, {String? label})
       : this(<OptionGroup<T>>[OptionGroup<T>.withLabel(options, label)]);
 
   /// Creates an instance with the given option groups.
@@ -117,18 +117,18 @@ class SelectionOptions<T> extends GroupedOptions<T>
 
   /// Provides the stream of options group changes.
   @override
-  Stream<List<OptionGroup<T>>> get stream => _controller.stream;
+  Stream<List<OptionGroup<T>>?> get stream => _controller.stream;
 
   @override
-  List<OptionGroup<T>> get optionGroups => _optionGroups;
+  List<OptionGroup<T>>? get optionGroups => _optionGroups;
 
   @override
-  set optionGroups(List<OptionGroup<T>> value) {
+  set optionGroups(List<OptionGroup<T>>? value) {
     var oldValue = _optionGroups;
     if (oldValue != value) {
       _optionGroups = value;
       _flattenedList = _optionGroups != null
-          ? _optionGroups.expand((i) => i).toList()
+          ? _optionGroups!.expand((i) => i).toList()
           : <T>[];
       _controller.add(_optionGroups);
     }
@@ -139,7 +139,7 @@ class SelectionOptions<T> extends GroupedOptions<T>
   List<T> get optionsList => _flattenedList;
 
   /// TODO(google): Remove method after b/26784290 is resolved.
-  bool get isNotEmpty => optionGroups.any((group) => group.isNotEmpty);
+  bool get isNotEmpty => (optionGroups?? []).any((group) => group.isNotEmpty);
 
   void _setOptions(List<OptionGroup<T>> newOptions) {
     optionGroups = newOptions;

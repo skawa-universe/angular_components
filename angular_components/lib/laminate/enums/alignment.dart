@@ -36,7 +36,7 @@ class Alignment implements ElementStyleEnum {
   static const After = AfterCustomAlignment();
 
   final String _displayName;
-  final String _cssPropertyValue;
+  final String? _cssPropertyValue;
 
   /// Parses one of the following values into an [Alignment]:
   /// - 'start'
@@ -46,7 +46,7 @@ class Alignment implements ElementStyleEnum {
   /// - 'after'
   ///
   /// A null value is treated as 'start'. Else throws [ArgumentError].
-  factory Alignment.parse(String displayName) {
+  factory Alignment.parse(String? displayName) {
     if (displayName == null || displayName == 'start') {
       return Alignment.Start;
     } else if (displayName == 'center') {
@@ -79,15 +79,15 @@ class Alignment implements ElementStyleEnum {
   ///
   /// If [contentRect] is provided, it is considered to be the size of the
   /// content being aligned *if* it were visible.
-  num calcLeft(Rectangle sourceRect, [Rectangle contentRect]) {
+  num calcLeft(Rectangle sourceRect, [Rectangle? contentRect]) {
     if (requiresContentSizeToPosition && contentRect == null) {
       throw ArgumentError.notNull('contentRect');
     }
     var left = sourceRect.left;
     if (this == Center) {
-      left += sourceRect.width / 2 - contentRect.width / 2;
+      left += sourceRect.width / 2 - contentRect!.width / 2;
     } else if (this == End) {
-      left += sourceRect.width - contentRect.width;
+      left += sourceRect.width - contentRect!.width;
     }
     return left;
   }
@@ -96,15 +96,15 @@ class Alignment implements ElementStyleEnum {
   ///
   /// If [contentRect] is provided, it is considered to be the size of the
   /// content being aligned *if* it were visible.
-  num calcTop(Rectangle sourceRect, [Rectangle contentRect]) {
+  num calcTop(Rectangle sourceRect, [Rectangle? contentRect]) {
     if (requiresContentSizeToPosition && contentRect == null) {
       throw ArgumentError.notNull('contentRect');
     }
     var top = sourceRect.top;
     if (this == Center) {
-      top += sourceRect.height / 2 - contentRect.height / 2;
+      top += sourceRect.height / 2 - contentRect!.height / 2;
     } else if (this == End) {
-      top += sourceRect.height - contentRect.height;
+      top += sourceRect.height - contentRect!.height;
     }
     return top;
   }
@@ -141,13 +141,13 @@ class BeforeCustomAlignment extends _CustomAlignment {
   final requiresContentSizeToPosition = true;
 
   @override
-  num calcLeft(Rectangle sourceRect, [Rectangle contentRect]) {
-    return sourceRect.left + -contentRect.width;
+  num calcLeft(Rectangle sourceRect, [Rectangle? contentRect]) {
+    return sourceRect.left + -contentRect!.width;
   }
 
   @override
-  num calcTop(Rectangle sourceRect, [Rectangle contentRect]) {
-    return sourceRect.top - contentRect.height;
+  num calcTop(Rectangle sourceRect, [Rectangle? contentRect]) {
+    return sourceRect.top - contentRect!.height;
   }
 }
 
@@ -158,12 +158,12 @@ class AfterCustomAlignment extends _CustomAlignment {
   final requiresContentSizeToPosition = false;
 
   @override
-  num calcLeft(Rectangle sourceRect, [Rectangle contentRect]) {
+  num calcLeft(Rectangle sourceRect, [Rectangle? contentRect]) {
     return sourceRect.left + sourceRect.width;
   }
 
   @override
-  num calcTop(Rectangle sourceRect, [Rectangle contentRect]) {
+  num calcTop(Rectangle sourceRect, [Rectangle? contentRect]) {
     return sourceRect.top + sourceRect.height;
   }
 }
@@ -456,7 +456,7 @@ class RelativePosition {
 
   String _flipAnimation(String animationOrigin) =>
       _AnimationOrigins.flippedAnimationOrigins.containsKey(animationOrigin)
-          ? _AnimationOrigins.flippedAnimationOrigins[animationOrigin]
+          ? _AnimationOrigins.flippedAnimationOrigins[animationOrigin]!
           : animationOrigin;
 
   @override

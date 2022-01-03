@@ -78,15 +78,15 @@ class DateInputDirective implements OnDestroy {
   /// defaults to `yMMMd`, e.g. "Jul 31, 2015". When [isMonthInput] is true,
   /// this defaults to `yMMM`, e.g. "Jul 2015".
   @Input()
-  set dateFormat(DateFormat value) {
+  set dateFormat(DateFormat? value) {
     _dateFormat = value;
     _input.inputText = _date?.format(dateFormat) ?? '';
   }
 
-  DateFormat _dateFormat;
+  DateFormat? _dateFormat;
   DateFormat get dateFormat {
     if (_dateFormat != null) {
-      return _dateFormat;
+      return _dateFormat!;
     } else {
       return isMonthInput ? _defaultMonthFormat : _defaultDayFormat;
     }
@@ -95,7 +95,7 @@ class DateInputDirective implements OnDestroy {
   /// The latest recognized date, inclusive.
   /// Defaults to Dec 31, 9999 -- i.e., limited to 4-digit years.
   @Input()
-  set maxDate(Date date) {
+  set maxDate(Date? date) {
     if (date == null || date == _maxDate) return;
     _maxDate = date;
 
@@ -110,7 +110,7 @@ class DateInputDirective implements OnDestroy {
   /// The earliest recognized date, inclusive.
   /// Defaults to Jan 1, 1000 -- i.e., limited to 4-digit years.
   @Input()
-  set minDate(Date date) {
+  set minDate(Date? date) {
     if (date == null || date == _minDate) return;
     _minDate = date;
 
@@ -124,7 +124,7 @@ class DateInputDirective implements OnDestroy {
 
   /// The selected date.
   @Input()
-  set date(Date date) {
+  set date(Date? date) {
     _date = _clampDate(date);
     var text = _date?.format(dateFormat) ?? '';
     if (_input.inputText != text) {
@@ -133,8 +133,8 @@ class DateInputDirective implements OnDestroy {
     }
   }
 
-  Date _date;
-  Date get date => _date;
+  Date? _date;
+  Date? get date => _date;
 
   /// Controls whether entered dates are snapped to the beginning of the
   /// specified month (false), or to the end of the specified month (true).
@@ -166,13 +166,13 @@ class DateInputDirective implements OnDestroy {
   final MaterialInputComponent _input;
 
   // Support for _parseDateCached
-  String _cachedResult;
+  String? _cachedResult;
   String _cachedInput = '';
-  Date _cachedMinDate;
-  Date _cachedMaxDate;
-  Date _lastParse;
+  Date? _cachedMinDate;
+  Date? _cachedMaxDate;
+  Date? _lastParse;
 
-  DateInputDirective(@Optional() @Inject(datepickerClock) Clock clock,
+  DateInputDirective(@Optional() @Inject(datepickerClock) Clock? clock,
       Clock legacyClock, this._input)
       : _clock = clock ?? legacyClock {
     // TODO(google): Migrate to use only datepickerClock
@@ -180,7 +180,7 @@ class DateInputDirective implements OnDestroy {
     _disposer.addStreamSubscription(_input.onChange
         .listen((String input) => _parseDate(input, setAsCurrent: true)));
 
-    _input.checkValid = (String input) => _parseDateCached(input);
+    _input.checkValid = (String? input) => _parseDateCached(input ?? '');
     _input.requiredErrorMsg = invalidDateMsg;
   }
 
@@ -189,7 +189,7 @@ class DateInputDirective implements OnDestroy {
 
   // Clamp the date to first or last day of the month, depending on whether
   // this input field is for the start or the end of a month range.
-  Date _clampDate(Date date) {
+  Date? _clampDate(Date? date) {
     if (date != null && isMonthInput) {
       if (_isRangeEnd) {
         return lastDayOfMonth(date);
@@ -200,7 +200,7 @@ class DateInputDirective implements OnDestroy {
     return date;
   }
 
-  Date _parseDateUsingFormat(String input, DateFormat format) {
+  Date? _parseDateUsingFormat(String input, DateFormat format) {
     try {
       return _clampDate(Date.parseLoose(input, format));
     } on FormatException {
@@ -214,7 +214,7 @@ class DateInputDirective implements OnDestroy {
 
   /// Parse the given string as a date using one of the listed formats.
   /// Returns the parsed date, or null if the string didn't match any format.
-  Date _parseDateUsingFormatList(String input, List<DateFormat> formatList) {
+  Date? _parseDateUsingFormatList(String input, List<DateFormat> formatList) {
     for (final format in formatList) {
       final d = _parseDateUsingFormat(input, format);
 
@@ -225,7 +225,7 @@ class DateInputDirective implements OnDestroy {
 
   /// A cache for _parseDate, to speed up change detection.
   /// Does not update [date] or change the textbox contents.
-  String _parseDateCached(String input) {
+  String? _parseDateCached(String input) {
     var minOrMaxDateChanged =
         minDate != _cachedMinDate || maxDate != _cachedMaxDate;
     if (minOrMaxDateChanged) {
@@ -245,7 +245,7 @@ class DateInputDirective implements OnDestroy {
   /// Returns null on success, or a localized error string on failure.
   /// - `setAsCurrent: bool` -- If true, and parsing succeeds, set the text
   ///   to the parsed date.
-  String _parseDate(String input, {bool setAsCurrent = false}) {
+  String? _parseDate(String input, {bool setAsCurrent = false}) {
     if (input.trim().isEmpty) {
       // Empty input is invalid iff input is required
       _lastParse = null;
@@ -276,9 +276,9 @@ class DateInputDirective implements OnDestroy {
       }
     }
 
-    if (_lastParse != null && _lastParse.year < 100) {
+    if (_lastParse != null && _lastParse!.year < 100) {
       _lastParse = Date(
-          _guessCentury(_lastParse.year), _lastParse.month, _lastParse.day);
+          _guessCentury(_lastParse!.year), _lastParse!.month, _lastParse!.day);
     }
 
     return _trySetDate(_lastParse, setAsCurrent: setAsCurrent);
@@ -286,7 +286,7 @@ class DateInputDirective implements OnDestroy {
 
   /// Given an already parsed date, checks its validity and optionally sets it
   /// as the current value if valid.
-  String _trySetDate(Date date, {bool setAsCurrent = false}) {
+  String? _trySetDate(Date? date, {bool setAsCurrent = false}) {
     // Always update the textbox if the date parses successfully. This is useful
     // feedback for users even if the entered date is too early/late.
     if (setAsCurrent) {
@@ -305,15 +305,15 @@ class DateInputDirective implements OnDestroy {
       if (isMonthInput &&
           date != null &&
           _date != null &&
-          date.month == _date.month &&
-          date.year == _date.year) {
+          date.month == _date?.month &&
+          date.year == _date?.year) {
         // If the new date is the same month and year as the current value,
         // use the current (already clamped) value instead.
         date = _date;
       } else {
         _date = date;
       }
-      _controller.add(date);
+      _controller.add(date!);
     }
 
     return null;
@@ -342,7 +342,7 @@ class DateInputDirective implements OnDestroy {
   /// "12/31" probably means "12/31/2014", not "12/31/2015".
   /// Returns a fixed-up date with the guessed year and the same month and day,
   /// or null if null was passed.
-  Date _guessYear(Date date) {
+  Date? _guessYear(Date? date) {
     if (date == null) return null;
 
     final thisYear = Date(_clock.now().year, date.month, date.day);

@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:angular/angular.dart';
-
 /// Lightweight interface for Tooltip components to implement so they can be
 /// controlled by a [TooltipController].
 ///
@@ -23,7 +21,6 @@ abstract class Tooltip {
 /// A simple controller which ensures only one tooltip is visible on the screen.
 ///
 /// Should not be used outside the material_tooltip package.
-@Injectable()
 class TooltipController {
   /// Activates [tooltip].
   ///
@@ -52,7 +49,7 @@ class TooltipController {
   }
 
   /// Deactivates [tooltip] without any delay.
-  void deactivateImmediately(Tooltip tooltip) {
+  void deactivateImmediately(Tooltip? tooltip) {
     tooltip?.deactivate();
     if (tooltip == _activeTooltip) _activeTooltip = null;
   }
@@ -68,7 +65,7 @@ class TooltipController {
   }
 
   /// The currently active tooltip.
-  Tooltip _activeTooltip;
+  Tooltip? _activeTooltip;
 
   /// Timers to close each tooltip.
   final _closeTimerByTooltip = <Tooltip, Timer>{};

@@ -9,14 +9,12 @@ import 'package:angular_components/model/ui/has_renderer.dart';
 import 'package:angular_components/utils/async/async.dart';
 
 /// Formats [value] as a lowercase string without spaces.
-String _stringFormatSuggestion(String value) =>
-    value.replaceAll(' ', '').toLowerCase();
+String _stringFormatSuggestion(String value) => value.replaceAll(' ', '').toLowerCase();
 
 ItemRenderer<T> _defaultRenderer<T>(ItemRenderer<String> sanitizeString) =>
     newCachingItemRenderer<T>((T value) => sanitizeString(value.toString()));
 
-typedef StringSuggestionFilter<T> = bool Function(
-    T suggestion, String filterQuery);
+typedef StringSuggestionFilter<T> = bool Function(T suggestion, String filterQuery);
 
 /// The class is meant to be used in areas where a selection can be represented
 /// as a string.
@@ -35,25 +33,24 @@ typedef StringSuggestionFilter<T> = bool Function(
 ///     [new Color (1, 'Red'), new Color(2, 'Blue'), new Color(3, 'Purple')],
 ///     toFilterableString: (Color color) => color.displayName.toLowerCase());
 /// ```
-class StringSelectionOptions<T> extends SelectionOptions<T>
-    implements Filterable {
+class StringSelectionOptions<T> extends SelectionOptions<T> implements Filterable {
   /// Unlimited large value to support no limit for filtering.
   static const int UNLIMITED = 9007199254740992;
 
   /// The last query passed to [filter].
-  String _currentQuery;
+  String? _currentQuery;
 
   /// The current limit for the filter being applied.
   int _currentLimit = -1;
 
-  List<OptionGroup<T>> _optionGroups;
+  List<OptionGroup<T>>? _optionGroups;
 
   /// A function that converts a single option to a filterable string.
   final ItemRenderer<T> _toFilterableString;
 
   /// Function for filtering a single suggestion/option, defaults to
   /// [filterOption] method.
-  StringSuggestionFilter<T> _suggestionFilter;
+  late StringSuggestionFilter<T> _suggestionFilter;
 
   /// The [ItemRenderer] that sanitizes options and queries before filtering.
   final ItemRenderer<String> _sanitizeString;
@@ -77,8 +74,8 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
   /// Set [shouldFilterEmpty] to false if [filter] should return empty when the
   /// query is empty.
   StringSelectionOptions(List<T> options,
-      {ItemRenderer<T> toFilterableString,
-      StringSuggestionFilter<T> suggestionFilter,
+      {ItemRenderer<T>? toFilterableString,
+      StringSuggestionFilter<T>? suggestionFilter,
       ItemRenderer<String> sanitizeString = _stringFormatSuggestion,
       bool shouldSort = false,
       bool shouldFilterEmpty = true})
@@ -90,19 +87,17 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
             shouldFilterEmpty: shouldFilterEmpty);
 
   StringSelectionOptions.withOptionGroups(List<OptionGroup<T>> optionGroups,
-      {ItemRenderer<T> toFilterableString,
-      StringSuggestionFilter<T> suggestionFilter,
+      {ItemRenderer<T>? toFilterableString,
+      StringSuggestionFilter<T>? suggestionFilter,
       ItemRenderer<String> sanitizeString = _stringFormatSuggestion,
       bool shouldSort = false,
       bool shouldFilterEmpty = true})
-      : _toFilterableString =
-            toFilterableString ?? _defaultRenderer(sanitizeString),
+      : _toFilterableString = toFilterableString ?? _defaultRenderer(sanitizeString),
         _shouldSort = shouldSort,
         _shouldFilterEmpty = shouldFilterEmpty,
         _sanitizeString = sanitizeString,
         super(optionGroups) {
-    _suggestionFilter =
-        suggestionFilter != null ? suggestionFilter : filterOption;
+    _suggestionFilter = suggestionFilter != null ? suggestionFilter : filterOption;
   }
 
   /// Accepts a string query and limit and applies the filter to the options.
@@ -127,12 +122,10 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
   void refilter() {
     List<OptionGroup<T>> filtered = [];
     int count = 0;
-    String filterQuery =
-        _currentQuery == null ? '' : _sanitizeString(_currentQuery);
-    for (var group in _optionGroups) {
+    String filterQuery = _currentQuery == null ? '' : _sanitizeString(_currentQuery!);
+    for (var group in _optionGroups!) {
       if (count >= currentLimit) break;
-      var filteredGroup =
-          filterOptionGroup(group, filterQuery, currentLimit - count);
+      var filteredGroup = filterOptionGroup(group, filterQuery, currentLimit - count);
       count += filteredGroup.length;
       filtered.add(filteredGroup);
     }
@@ -140,24 +133,19 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
   }
 
   @protected
-  OptionGroup<T> filterOptionGroup(
-      OptionGroup<T> group, String filterQuery, int limit) {
+  OptionGroup<T> filterOptionGroup(OptionGroup<T> group, String filterQuery, int limit) {
     Iterable<T> list;
     if (filterQuery.isNotEmpty) {
       // TODO(google): Optimize the code below to stop filtering if the
       // limit is met rather than filtering everything than taking the
       // matches.
-      list = group
-          .where((suggestion) => _suggestionFilter(suggestion, filterQuery))
-          .take(limit);
+      list = group.where((suggestion) => _suggestionFilter(suggestion, filterQuery)).take(limit);
     } else if (_shouldFilterEmpty) {
       list = group.take(limit);
     } else {
       list = Iterable<T>.empty();
     }
-    var filteredGroup = OptionGroup<T>.withLabelFunction(
-        list.toList(growable: false),
-        () => group.uiDisplayName,
+    var filteredGroup = OptionGroup<T>.withLabelFunction(list.toList(growable: false), () => group.uiDisplayName,
         group.emptyLabel != null ? () => group.emptyLabel : null);
 
     return filteredGroup;
@@ -171,18 +159,18 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
   }
 
   @override
-  Object get currentQuery => _currentQuery;
+  Object? get currentQuery => _currentQuery;
 
   @override
   int get currentLimit => _currentLimit;
 
-  List<OptionGroup<T>> get unfilteredOptionGroups => _optionGroups;
+  List<OptionGroup<T>>? get unfilteredOptionGroups => _optionGroups;
 
   @override
-  set optionGroups(List<OptionGroup<T>> value) {
+  set optionGroups(List<OptionGroup<T>>? value) {
     // This mutates value...
     if (_shouldSort) {
-      value.forEach((optionGroup) {
+      value?.forEach((optionGroup) {
         optionGroup.sort(_sortFn);
       });
     }
@@ -194,6 +182,5 @@ class StringSelectionOptions<T> extends SelectionOptions<T>
     }
   }
 
-  int _sortFn(T a, T b) =>
-      _toFilterableString(a).compareTo(_toFilterableString(b));
+  int _sortFn(T a, T b) => _toFilterableString(a).compareTo(_toFilterableString(b));
 }

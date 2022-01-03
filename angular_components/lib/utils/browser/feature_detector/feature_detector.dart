@@ -14,8 +14,7 @@ import 'package:js/js_util.dart' as js_util;
 /// Nexus 9 is a special case here because it does not match the
 /// "(hover: none)" media query.
 bool supportsHover(Window window) =>
-    !((window.matchMedia("(hover: none)")?.matches ?? false) ||
-        window.navigator.userAgent.contains("Nexus 9"));
+    !(window.matchMedia("(hover: none)").matches || window.navigator.userAgent.contains("Nexus 9"));
 
 /// Whether the primary input mechanism on this system is touch.
 ///
@@ -27,8 +26,7 @@ bool supportsHover(Window window) =>
 /// Checking if touch events are supported? You probably want
 /// [TouchEvent.supported] instead.
 final bool isTouchInterface =
-    (window.matchMedia('(pointer: coarse)').matches ?? false) ||
-        js.context.hasProperty('__acxForceTouchEnabled');
+    window.matchMedia('(pointer: coarse)').matches || js.context.hasProperty('__acxForceTouchEnabled');
 
 /// Returns true if Hammer.js is loaded in the current browser.
 ///
@@ -40,12 +38,10 @@ bool isHammerLoaded() => js.context.hasProperty('Hammer');
 
 /// Whether the browser supports the Web Animations API.
 final bool supportsAnimationApi =
-    js_util.hasProperty(DivElement(), 'animate') &&
-        !js.context.hasProperty('__acxDisableWebAnimationsApi');
+    js_util.hasProperty(DivElement(), 'animate') && !js.context.hasProperty('__acxDisableWebAnimationsApi');
 
 /// Whether the browser supports IntersectionObserver.
-final bool supportsIntersectionObserver =
-    js.context.hasProperty('IntersectionObserver');
+final bool supportsIntersectionObserver = js.context.hasProperty('IntersectionObserver');
 
 /// Whether the browser supports ResizeObserver.
 final bool supportsResizeObserver = js.context.hasProperty('ResizeObserver');

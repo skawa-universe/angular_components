@@ -25,12 +25,12 @@ import 'base_material_input.dart';
 class MaterialInputDefaultValueAccessor
     extends BaseMaterialInputValueAccessor<String> {
   MaterialInputDefaultValueAccessor(
-      BaseMaterialInput input, @Self() @Optional() NgControl control)
+      BaseMaterialInput input, @Self() @Optional() NgControl? control)
       : super(input, control);
 
   @override
   void registerOnChange(callback) {
-    disposer.addStreamSubscription(input.onKeypress.listen((value) {
+    disposer.addStreamSubscription(input!.onKeypress.listen((value) {
       callback(value);
     }));
   }
@@ -44,13 +44,13 @@ class MaterialInputDefaultValueAccessor
 class MaterialInputBlurValueAccessor
     extends BaseMaterialInputValueAccessor<String> {
   MaterialInputBlurValueAccessor(
-      BaseMaterialInput input, @Self() @Optional() NgControl control)
+      BaseMaterialInput input, @Self() @Optional() NgControl? control)
       : super(input, control);
 
   @override
   void registerOnChange(callback) {
-    disposer.addStreamSubscription(input.onBlur.listen((_) {
-      if (input != null) callback(input.inputText);
+    disposer.addStreamSubscription(input!.onBlur.listen((_) {
+      if (input != null) callback(input!.inputText);
     }));
   }
 }
@@ -63,13 +63,13 @@ class MaterialInputBlurValueAccessor
 class MaterialInputChangeValueAccessor
     extends BaseMaterialInputValueAccessor<String> {
   MaterialInputChangeValueAccessor(
-      BaseMaterialInput input, @Self() @Optional() NgControl control)
+      BaseMaterialInput input, @Self() @Optional() NgControl? control)
       : super(input, control);
 
   @override
   void registerOnChange(callback) {
-    disposer.addStreamSubscription(input.onChange.listen((_) {
-      if (input != null) callback(input.inputText);
+    disposer.addStreamSubscription(input!.onChange.listen((_) {
+      if (input != null) callback(input!.inputText);
     }));
   }
 }
@@ -77,12 +77,12 @@ class MaterialInputChangeValueAccessor
 /// Common logic for a [ControlValueAccessor] for a
 /// [BaseMaterialInputComponent].
 abstract class BaseMaterialInputValueAccessor<T>
-    implements ControlValueAccessor<T>, OnDestroy {
+    implements ControlValueAccessor<T?>, OnDestroy {
   @protected
   final disposer = Disposer.oneShot();
   @protected
-  final BaseMaterialInput input;
-  final NgControl _cd;
+  final BaseMaterialInput? input;
+  final NgControl? _cd;
 
   BaseMaterialInputValueAccessor(this.input, @Self() @Optional() this._cd) {
     // To get around a circular dependency injection assign the valueAccessor
@@ -96,20 +96,20 @@ abstract class BaseMaterialInputValueAccessor<T>
   }
 
   @override
-  void writeValue(T newValue) {
-    input.inputText = formatValue(newValue);
+  void writeValue(T? newValue) {
+    input!.inputText = formatValue(newValue);
   }
 
   /// Handles converting input value to [String].
   ///
   /// Override this if you need additional formatting for your value type, ex.
   /// if using a [NumberFormatter].
-  String formatValue(T value) => '${value ?? ''}';
+  String formatValue(T? value) => '${value ?? ''}';
 
   @override
   void registerOnTouched(callback) {
-    StreamSubscription sub;
-    sub = input.onBlur.listen((_) {
+    late StreamSubscription sub;
+    sub = input!.onBlur.listen((_) {
       sub.cancel(); // We only need the first event. Cancel the subscription.
       callback();
     });
@@ -123,6 +123,6 @@ abstract class BaseMaterialInputValueAccessor<T>
 
   @override
   void onDisabledChanged(bool isDisabled) {
-    input.disabled = isDisabled;
+    input!.disabled = isDisabled;
   }
 }

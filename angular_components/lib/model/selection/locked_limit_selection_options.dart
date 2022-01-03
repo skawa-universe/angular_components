@@ -23,16 +23,16 @@ class LockedLimitSelectionOptions<T> extends DelegatingSelectionOptions<T>
   final Disposer _disposer = Disposer.oneShot();
 
   bool _unlockLimit = false;
-  int _currentLimit;
+  late int _currentLimit;
   bool _hasMoreOptions = true;
 
   /// The cached [OptionGroup]s from filtering with the [currentQuery].
   /// This is used to manipulate the underlying OptionGroups without
   /// accidentally throwing away any of the options.
-  List<OptionGroup<T>> _filteredGroups;
+  late List<OptionGroup<T>> _filteredGroups;
 
   /// The flattened [_filteredGroups].
-  List<T> _flattenedOptions;
+  late List<T> _flattenedOptions;
 
   LockedLimitSelectionOptions(SelectionOptions<T> options, this.lockedLimit)
       : _options = options,
@@ -55,7 +55,7 @@ class LockedLimitSelectionOptions<T> extends DelegatingSelectionOptions<T>
   bool get hasMoreOptions => _hasMoreOptions;
 
   @override
-  Object get currentQuery => (_options as Filterable).currentQuery;
+  Object? get currentQuery => (_options as Filterable).currentQuery;
 
   @override
   int get currentLimit => _currentLimit;
@@ -94,10 +94,10 @@ class LockedLimitSelectionOptions<T> extends DelegatingSelectionOptions<T>
   void _updateFilteredOptions() {
     if (_unlockLimit) {
       // clone the optionGroups
-      _filteredGroups = _options.optionGroups.toList();
+      _filteredGroups = _options.optionGroups!.toList();
       _flattenedOptions = _options.optionsList.toList();
     } else {
-      _setLimitedOptions(_options.optionGroups, _currentLimit);
+      _setLimitedOptions(_options.optionGroups!, _currentLimit);
     }
     _hasMoreOptions = _flattenedOptions.length < _options.optionsList.length;
   }

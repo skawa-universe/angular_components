@@ -49,17 +49,17 @@ class ZonedFuture<T> extends _ZoneRunner implements Future<T> {
   }
 
   @override
-  Future<T> catchError(Function onError, {bool test(Object error)}) {
+  Future<T> catchError(Function onError, {bool test(Object error)?}) {
     return _runInZone(() => _innerFuture.catchError(onError, test: test));
   }
 
   @override
-  Future<S> then<S>(FutureOr<S> onValue(T value), {Function onError}) {
+  Future<S> then<S>(FutureOr<S> onValue(T value), {Function? onError}) {
     return _runInZone(() => _innerFuture.then<S>(onValue, onError: onError));
   }
 
   @override
-  Future<T> timeout(Duration timeLimit, {onTimeout()}) {
+  Future<T> timeout(Duration timeLimit, {FutureOr<T> onTimeout()?}) {
     return _runInZone(() {
       return _innerFuture.timeout(timeLimit, onTimeout: onTimeout);
     });
@@ -114,11 +114,9 @@ class ZonedStream<T> extends Stream<T> with _ZoneRunner {
   }
 
   @override
-  StreamSubscription<T> listen(void onData(T value),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  StreamSubscription<T> listen(void onData(T value)?, {Function? onError, void onDone()?, bool? cancelOnError}) {
     return _runInZone(() {
-      return _innerStream.listen(onData,
-          onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+      return _innerStream.listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
     });
   }
 }

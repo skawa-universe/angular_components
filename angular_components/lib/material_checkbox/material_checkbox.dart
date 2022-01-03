@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/focus/focus.dart';
 import 'package:angular_components/interfaces/has_disabled.dart';
 import 'package:angular_components/material_icon/material_icon.dart';
@@ -49,8 +48,7 @@ const indeterminateAriaState = 'mixed';
   styleUrls: ['material_checkbox.scss.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 )
-class MaterialCheckboxComponent
-    implements ControlValueAccessor<bool>, HasDisabled, Focusable, OnDestroy {
+class MaterialCheckboxComponent implements ControlValueAccessor<bool>, HasDisabled, Focusable, OnDestroy {
   @visibleForTemplate
   @HostBinding('class')
   static const hostClass = 'themeable';
@@ -61,16 +59,11 @@ class MaterialCheckboxComponent
 
   @HostBinding('attr.role')
   final String role;
-  Function _onTouched;
+  Function? _onTouched;
 
-  MaterialCheckboxComponent(
-      this._root,
-      this._changeDetector,
-      @Self() @Optional() NgControl cd,
-      @Attribute('tabindex') String hostTabIndex,
-      @Attribute('role') String role)
-      : _defaultTabIndex =
-            hostTabIndex?.isNotEmpty ?? false ? hostTabIndex : '0',
+  MaterialCheckboxComponent(this._root, this._changeDetector, @Self() @Optional() NgControl? cd,
+      @Attribute('tabindex') String? hostTabIndex, @Attribute('role') String? role)
+      : _defaultTabIndex = hostTabIndex?.isNotEmpty ?? false ? hostTabIndex! : '0',
         this.role = role ?? 'checkbox' {
     // When NgControl is present on the host element, the component
     // participates in the Forms API.
@@ -83,7 +76,7 @@ class MaterialCheckboxComponent
   @override
   void writeValue(bool isChecked) {
     // Need to ignore the null on init.
-    if (isChecked == null) return;
+    // if (isChecked == null) return;
     _setStates(checked: isChecked, emitEvent: false);
   }
 
@@ -125,9 +118,12 @@ class MaterialCheckboxComponent
   /// Whether the checkbox should not respond to events, and have a style that
   /// suggests that interaction is not allowed.
   @HostBinding('class.disabled')
-  @HostBinding('attr.aria-disabled')
   @Input()
   bool disabled = false;
+
+
+  @HostBinding('attr.aria-disabled')
+  String get ariaDisabled => disabled.toString();
 
   // Current tab index.
   @HostBinding('attr.tabindex')
@@ -184,10 +180,7 @@ class MaterialCheckboxComponent
   /// If both parameters are provided, then set them as presented, otherwise we
   /// will clear the other one if necessary. Events are only fired if there was
   /// a change and [emitEvent] is true.
-  void _setStates(
-      {bool checked = false,
-      bool indeterminate = false,
-      bool emitEvent = true}) {
+  void _setStates({bool checked = false, bool indeterminate = false, bool emitEvent = true}) {
     // At most one can be true.
     assert(!checked || !indeterminate);
 
@@ -225,9 +218,8 @@ class MaterialCheckboxComponent
   }
 
   void _syncAriaChecked() {
-    if (_root == null) return;
     _root.attributes['aria-checked'] = _checkedStr;
-    _changeDetector?.markForCheck();
+    _changeDetector.markForCheck();
   }
 
   /// Current icon, depends on the state of [checked] and [indeterminate].
@@ -243,18 +235,18 @@ class MaterialCheckboxComponent
   /// themeColor unless you want this behavior.
   @visibleForTemplate
   @Input()
-  String themeColor;
+  String? themeColor;
 
   /// Color of the ripple.
   ///
   /// When the checkbox is unchecked, the ripple color does not follow theme
   /// color.
   @visibleForTemplate
-  String get rippleColor => checked ? themeColor : '';
+  String? get rippleColor => checked ? themeColor : '';
 
   /// Label for the checkbox, alternatively use content.
   @Input()
-  String label;
+  String? label;
 
   /// Id for the checkbox label and content.
   @visibleForTemplate
@@ -344,10 +336,11 @@ class MaterialCheckboxComponent
   @override
   void onDisabledChanged(bool isDisabled) {
     disabled = isDisabled;
-    _changeDetector?.markForCheck();
+    _changeDetector.markForCheck();
   }
 
   /// Unimplemented for M1.
-  Future focusDelegate;
+  Future? focusDelegate;
+
   void ngOnDestroy() {}
 }

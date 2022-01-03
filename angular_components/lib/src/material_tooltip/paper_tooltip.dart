@@ -18,7 +18,6 @@ import 'package:angular_components/utils/angular/css/css.dart';
 import 'tooltip_controller.dart';
 import 'tooltip_target.dart';
 
-@Injectable()
 Tooltip getTooltipHandle(MaterialPaperTooltipComponent tooltip) =>
     tooltip.tooltipHandle;
 
@@ -68,7 +67,7 @@ Tooltip getTooltipHandle(MaterialPaperTooltipComponent tooltip) =>
                 [offsetY]="offsetY"
                 [autoDismiss]="focusContents"
                 [class]="popupClassName"
-                [source]="popupSource"
+                [source]="popupSource!"
                 [attr.role]="focusContents ? 'dialog' : 'tooltip'">
   <div class="paper-container"
        [autoFocus]="focusContents"
@@ -90,8 +89,8 @@ class MaterialPaperTooltipComponent implements DeferredContentAware, Tooltip {
   // re-applied to material-popup.
   final String popupClassName;
 
-  PopupSource _tooltipSource;
-  PopupSource get popupSource => _tooltipSource;
+  PopupSource? _tooltipSource;
+  PopupSource? get popupSource => _tooltipSource;
 
   /// Relative positions where to try to show the tooltip.
   ///
@@ -125,12 +124,12 @@ class MaterialPaperTooltipComponent implements DeferredContentAware, Tooltip {
   final ChangeDetectorRef _changeDetector;
 
   MaterialPaperTooltipComponent(this._tooltipController, this._changeDetector,
-      HtmlElement hostElement, @Attribute('tooltipClass') String tooltipClass)
+      HtmlElement hostElement, @Attribute('tooltipClass') String? tooltipClass)
       : popupClassName =
             constructEncapsulatedCss(tooltipClass, hostElement.classes);
 
   @ViewChild(MaterialPopupComponent)
-  set popupChild(MaterialPopupComponent popup) {
+  set popupChild(MaterialPopupComponent? popup) {
     if (popup == null) return;
     _visibleCtrl.addStream(popup.contentVisible);
   }
@@ -156,13 +155,13 @@ class MaterialPaperTooltipComponent implements DeferredContentAware, Tooltip {
   }
 
   // Proxy control of this tooltip via the tooltip controller.
-  Tooltip _controllerProxy;
+  Tooltip? _controllerProxy;
   Tooltip get tooltipHandle =>
       _controllerProxy ??= _tooltipController.proxyFor(this);
 
   /// The element at which this tooltip is targeted.
   @Input('for')
-  set tooltipRef(TooltipTarget target) {
+  set tooltipRef(TooltipTarget? target) {
     if (target == null) return;
     _tooltipSource = target;
     target.setTooltip(tooltipHandle);

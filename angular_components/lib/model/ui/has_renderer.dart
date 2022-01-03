@@ -7,7 +7,7 @@ typedef ItemRenderer<T> = String Function(T item);
 
 /// Interface for a class defining itemRenderer.
 abstract class HasRenderer<T> {
-  ItemRenderer<T> itemRenderer;
+  ItemRenderer<T>? itemRenderer;
 }
 
 final _rendererMarker = Expando('Renderer marker');
@@ -17,15 +17,15 @@ final _rendererMarker = Expando('Renderer marker');
 ///
 /// If the item passed in is already a caching ItemRenderer, it is returned
 /// unchanged.
-ItemRenderer<T> newCachingItemRenderer<T>(ItemRenderer<T> itemRenderer) {
+ItemRenderer<T> newCachingItemRenderer<T>(ItemRenderer<T>? itemRenderer) {
   if (itemRenderer != null && _rendererMarker[itemRenderer] != null) {
     return itemRenderer;
   }
   var _cache = <T, String>{};
   ItemRenderer<T> cachingItemRenderer = (T item) {
-    String value = _cache[item];
+    String? value = _cache[item];
     if (value == null) {
-      value = itemRenderer(item);
+      value = itemRenderer!(item);
       _cache[item] = value;
     }
     return value;
@@ -42,18 +42,6 @@ ItemRenderer<T> newCachingItemRenderer<T>(ItemRenderer<T> itemRenderer) {
 /// DynamicComponent to set the value.
 abstract class RendersValue<T> {
   set value(T newValue);
-}
-
-/// Defines a method that returns a component to render the Item.  The
-/// component must implement RendersValue.
-@Deprecated('Use FactoryRenderer instead as it allows for treeshaking')
-typedef ComponentRenderer<T extends RendersValue, I> = Type Function(I item);
-
-/// HasComponentRenderer defines a method that takes in an item and returns the
-/// type to use to render the item.
-@Deprecated('Use HasFactoryRenderer instead as it allows for treeshaking')
-abstract class HasComponentRenderer<T extends RendersValue, I> {
-  ComponentRenderer<T, I> componentRenderer;
 }
 
 String defaultItemRenderer(dynamic value) => '$value';

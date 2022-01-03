@@ -38,7 +38,7 @@ class MenuPopupComponent extends Object with FocusableMixin, MenuPopupWrapper {
   HtmlElement element;
 
   @Input()
-  PopupSource popupSource;
+  PopupSource? popupSource;
 
   /// CSS classes to append onto the menu popup.
   ///
@@ -50,12 +50,12 @@ class MenuPopupComponent extends Object with FocusableMixin, MenuPopupWrapper {
   }
 
   String get popupClass => _popupClass;
-  String _popupClass;
+  late String _popupClass;
 
   MenuPopupComponent(this.element);
 
   @ViewChild(MenuItemGroupsComponent)
-  set menuItemGroups(MenuItemGroupsComponent groups) {
+  set menuItemGroups(MenuItemGroupsComponent? groups) {
     focusable = groups;
   }
 }

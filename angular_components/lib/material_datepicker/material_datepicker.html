@@ -38,8 +38,7 @@
                         [date]="date"
                         (dateChange)="setDateFromInput"
                         [required]="required"
-                        [label]="placeholderMsg"
-                        >
+                        [label]="placeholderMsg">
         </material-input>
       </div>
 
@@ -58,8 +57,8 @@
                                 class="calendar-picker"
                                 [ngClass]="calendarWeekRowsStyle"
                                 [(state)]="calendar"
-                                [minDate]="minDate"
-                                [maxDate]="maxDate"
+                                [minDate]="minDate!"
+                                [maxDate]="maxDate!"
                                 [compact]="compact"
                                 mode="single-date">
       </material-calendar-picker>

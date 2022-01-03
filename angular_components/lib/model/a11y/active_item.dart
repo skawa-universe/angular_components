@@ -42,10 +42,8 @@ class ActiveItemModel<T> {
   /// no items can be active or else their selection will be toggled. Setting
   /// this value to false will prevent items from auto-activating when the
   /// search query changes.
-  ActiveItemModel(IdGenerator idGenerator,
-      {bool loop = false,
-      this.activateFirstItemByDefault = true,
-      List<T> items = const []})
+  ActiveItemModel(IdGenerator? idGenerator,
+      {bool loop = false, this.activateFirstItemByDefault = true, List<T> items = const []})
       : _idGenerator = idGenerator ?? SequentialIdGenerator.fromUUID() {
     _loop = loop;
     _items = items;
@@ -57,7 +55,7 @@ class ActiveItemModel<T> {
   final _modelChanged = StreamController.broadcast(sync: true);
 
   /// ID of currently active item.
-  String get activeId => id(activeItem);
+  String? get activeId => id(activeItem);
 
   /// Determines whether [item] is active.
   bool isActive(T item) => activeItem == item;
@@ -86,8 +84,7 @@ class ActiveItemModel<T> {
   }
 
   /// Currently active item.
-  T get activeItem =>
-      _items.isEmpty || _activeIndex == -1 ? null : _items[_activeIndex];
+  T? get activeItem => _items.isEmpty || _activeIndex == -1 ? null : _items[_activeIndex];
 
   /// Activates next element in the list, if the active item is not already the
   /// last item.
@@ -103,7 +100,7 @@ class ActiveItemModel<T> {
   }
 
   /// Returns the next possible active item as if activeNext was called.
-  T get peekNext {
+  T? get peekNext {
     if (_items.isNotEmpty && _activeIndex < _items.length - 1) {
       return _items[_activeIndex + 1];
     } else if (_items.isNotEmpty && _loop) {
@@ -140,13 +137,17 @@ class ActiveItemModel<T> {
 
   /// Activates [value].
   /// If [value] is not found, the active pointer is set to none.
-  void activate(T value) {
-    _activeIndex = _items.indexOf(value);
+  void activate(T? value) {
+    if (value != null) {
+      _activeIndex = _items.indexOf(value);
+    } else {
+      _activeIndex = -1;
+    }
     _modelChanged.add(null);
   }
 
   /// Returns an unique id for [item].
-  String id(T item) {
+  String? id(T? item) {
     if (item == null) return null;
     if (!_ids.containsKey(item)) {
       _ids[item] = _idGenerator.nextId();
@@ -169,7 +170,7 @@ class ActiveItemModel<T> {
 
   final Map<T, String> _ids = HashMap<T, String>();
   final IdGenerator _idGenerator;
-  List<T> _items;
-  bool _loop;
+  late List<T> _items;
+  late bool _loop;
   int _activeIndex = -1;
 }

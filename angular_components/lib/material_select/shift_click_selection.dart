@@ -16,10 +16,10 @@ import 'package:angular_components/model/selection/selection_options.dart';
 // so it cannot implement [ActivationHandler<T>].
 abstract class ShiftClickSelectionMixin<T>
     implements ActivationHandler<dynamic /* T | String */ > {
-  T _pivot;
+  T? _pivot;
 
-  SelectionModel<T> get selection;
-  SelectionOptions<T> get options;
+  SelectionModel<T>? get selection;
+  SelectionOptions<T>? get options;
 
   /// Toggles the clicked value within [model].
   ///
@@ -29,13 +29,13 @@ abstract class ShiftClickSelectionMixin<T>
   /// become unselected.
   void _handleClick(MouseEvent e, T value) {
     var toggleSelection =
-        selection.isSelected(value) ? selection.deselect : selection.select;
+        selection!.isSelected(value) ? selection!.deselect : selection!.select;
     if (_pivot == null || !e.shiftKey) {
       toggleSelection(value);
     } else {
-      final optionValues = options.optionsList;
+      final optionValues = options!.optionsList;
       final clickedIndex = optionValues.indexOf(value);
-      final pivotIndex = optionValues.indexOf(_pivot);
+      final pivotIndex = optionValues.indexOf(_pivot!);
       if (pivotIndex == -1) {
         throw StateError("pivot item is no longer in the model: $_pivot");
       }

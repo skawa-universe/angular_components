@@ -20,8 +20,8 @@ class Visibility implements ElementStyleEnum {
   /// The enum name of the instance.
   final String displayName;
 
-  final String _propertyName;
-  final String _propertyValue;
+  final String? _propertyName;
+  final String? _propertyValue;
 
   factory Visibility.fromBoolean(bool visible) {
     return visible ? Visible : None;
@@ -33,7 +33,7 @@ class Visibility implements ElementStyleEnum {
   @override
   void apply(SetPropertyFn setProperty) {
     if (_propertyName != null) {
-      setProperty(_propertyName, _propertyValue);
+      setProperty(_propertyName!, _propertyValue);
     }
   }
 

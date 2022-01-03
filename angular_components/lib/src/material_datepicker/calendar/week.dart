@@ -8,13 +8,11 @@ part of '../../../material_datepicker/calendar.dart';
 class CalendarWeek extends _HasHighlights {
   final Date _start;
   final int _startingWeekday;
-  List<CalendarDay> _days;
-  List _spacers;
-  Date _end;
+  late List<CalendarDay> _days;
+  late List _spacers;
+  late Date _end;
 
-  CalendarWeek(this._start, CalendarState state,
-      [this._startingWeekday = DateTime.monday])
-      : super(state) {
+  CalendarWeek(this._start, CalendarState? state, [this._startingWeekday = DateTime.monday]) : super(state) {
     _end = _start.add(days: numDays - 1);
     if (_end.isAfter(_endOfMonth)) {
       _end = _endOfMonth;
@@ -25,7 +23,7 @@ class CalendarWeek extends _HasHighlights {
     } else {
       _days = _generateDays().toList();
     }
-    _spacers = List(numBlankDays);
+    _spacers = List.generate(numBlankDays, (_) => null);
     _updateHighlights();
   }
 
@@ -46,21 +44,20 @@ class CalendarWeek extends _HasHighlights {
   @override
   List<Highlight> get highlights => _highlights;
 
-  void update(CalendarState state) {
+  void update(CalendarState? state) {
     _state = state;
     days.forEach((d) => d.updateClasses(state));
     _updateHighlights();
   }
 
-  CalendarWeek get next {
+  CalendarWeek? get next {
     if (_end.isBefore(_endOfMonth)) {
       return CalendarWeek(_end.add(days: 1), _state, _startingWeekday);
     }
     return null;
   }
 
-  Iterable<CalendarDay> _generateDays() =>
-      _iterateDays().map((d) => CalendarDay(d, _state));
+  Iterable<CalendarDay> _generateDays() => _iterateDays().map((d) => CalendarDay(d, _state));
 
   /// Generates highlight objects based on which calendar selections match each
   /// pair of adjacent dates. This yields one highlight per date considered; use

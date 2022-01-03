@@ -43,7 +43,7 @@ abstract class TreeSelectionMixin<T>
     while (parentsToCheck.isNotEmpty) {
       T parent = parentsToCheck.removeFirst();
 
-      hierarchyMap[parent].forEach((optionGroup) {
+      hierarchyMap[parent]!.forEach((optionGroup) {
         optionGroup.toList().forEach((item) {
           if (!visited.contains(item)) {
             allChildren.add(item);
@@ -65,5 +65,5 @@ abstract class TreeSelectionMixin<T>
       throw UnimplementedError('getHierarchyMap() must be overriden.');
 
   /// Returns the parent of the given value
-  T getParent(T value) => null;
+  T? getParent(T value) => null;
 }

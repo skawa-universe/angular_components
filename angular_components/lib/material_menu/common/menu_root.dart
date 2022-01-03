@@ -11,7 +11,7 @@ import 'package:angular_components/mixins/material_dropdown_base.dart';
   providers: [ExistingProvider(MenuRoot, MenuRootDirective)],
 )
 class MenuRootDirective extends MenuRoot {
-  final DropdownHandle _dropdown;
+  final DropdownHandle? _dropdown;
 
   MenuRootDirective(@Optional() this._dropdown) {
     visible = true;
@@ -32,5 +32,5 @@ abstract class MenuRoot {
   void closeHierarchy();
 
   /// Is this menu closed or closing.
-  bool visible;
+  late bool visible;
 }

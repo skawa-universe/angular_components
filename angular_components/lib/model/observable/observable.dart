@@ -20,25 +20,23 @@ import 'dart:async';
 import 'package:angular_components/utils/disposer/disposer.dart';
 
 /// Compares two objects for reference or content equality.
-typedef EqualsFn<T> = bool Function(T a, T b);
+typedef EqualsFn<T> = bool Function(T? a, T? b);
 
 /// Allows listening on changes.
 abstract class ObserveAware<T> {
   /// Provides a stream of object values when the internals change.
-  Stream<T> get stream;
+  Stream<T?> get stream;
 }
 
 /// Change record with previous and following values.
 class Change<T> {
   final T previous;
   final T next;
+
   Change(this.previous, this.next);
 
   @override
-  bool operator ==(other) =>
-      (other is Change) &&
-      (this.previous == other.previous) &&
-      (this.next == other.next);
+  bool operator ==(other) => (other is Change) && (this.previous == other.previous) && (this.next == other.next);
 
   @override
   int get hashCode => (next == null) ? 0 : next.hashCode;
@@ -50,19 +48,19 @@ class Change<T> {
 /// Allows listening on change pairs.
 abstract class ChangeAware<T> extends ObserveAware<T> {
   /// Provides a stream of change pairs.
-  Stream<Change<T>> get changes;
+  Stream<Change<T?>> get changes;
 }
 
 /// Provides notification coalesce support for the other [ChangeAware] classes.
 class ChangeNotificationProvider<T> implements ChangeAware<T>, Disposable {
   final bool _coalesce;
   bool _coalesceScheduled = false;
-  StreamController<T> _streamController;
-  StreamController<Change<T>> _changeController;
+  StreamController<T?>? _streamController;
+  StreamController<Change<T?>>? _changeController;
 
   // temp values for coalescing changes
-  T _previous;
-  T _next;
+  T? _previous;
+  T? _next;
 
   ChangeNotificationProvider(
 
@@ -73,20 +71,20 @@ class ChangeNotificationProvider<T> implements ChangeAware<T>, Disposable {
 
   /// Provides a stream of object values when the reference changes.
   @override
-  Stream<T> get stream {
+  Stream<T?> get stream {
     if (_streamController == null) {
       _streamController = StreamController<T>.broadcast(sync: true);
     }
-    return _streamController.stream;
+    return _streamController!.stream;
   }
 
   /// Provides a stream of change pairs.
   @override
-  Stream<Change<T>> get changes {
+  Stream<Change<T?>> get changes {
     if (_changeController == null) {
       _changeController = StreamController<Change<T>>.broadcast(sync: true);
     }
-    return _changeController.stream;
+    return _changeController!.stream;
   }
 
   /// Whether there is a subscriber to [stream] or [changes].
@@ -94,10 +92,9 @@ class ChangeNotificationProvider<T> implements ChangeAware<T>, Disposable {
 
   /// Notifies the streams about a new value (or forces the notification without
   /// equality check).
-  void notifyChange([T previous, T next]) {
+  void notifyChange([T? previous, T? next]) {
     if (_isInactive) return;
-    if ((!_hasStreamListener || _streamController.isClosed) &&
-        (!_hasChangeListener || _changeController.isClosed)) {
+    if ((!_hasStreamListener || _streamController!.isClosed) && (!_hasChangeListener || _changeController!.isClosed)) {
       return;
     }
     if (_coalesce) {
@@ -107,7 +104,7 @@ class ChangeNotificationProvider<T> implements ChangeAware<T>, Disposable {
     }
   }
 
-  void _doCoalesce(T previous, T next) {
+  void _doCoalesce(T? previous, T? next) {
     if (_coalesceScheduled) {
       // [_previous] does not need to be changed, but always update [_next] to
       // the latest value
@@ -134,41 +131,40 @@ class ChangeNotificationProvider<T> implements ChangeAware<T>, Disposable {
     }
   }
 
-  void _doNotifyChange(T previous, T next) {
+  void _doNotifyChange(T? previous, T? next) {
     if (_hasStreamListener) {
-      _streamController.add(next);
+      _streamController!.add(next);
     }
     if (_hasChangeListener) {
-      _changeController.add(Change(previous, next));
+      _changeController!.add(Change(previous, next));
     }
   }
 
   @override
   void dispose() {
     if (_streamController != null) {
-      _streamController.close();
+      _streamController!.close();
       _streamController = null;
     }
     if (_changeController != null) {
-      _changeController.close();
+      _changeController!.close();
       _changeController = null;
     }
   }
 
-  bool get _hasStreamListener =>
-      (_streamController != null) && (_streamController.hasListener);
+  bool get _hasStreamListener => (_streamController != null) && (_streamController!.hasListener);
 
-  bool get _hasChangeListener =>
-      (_changeController != null) && (_changeController.hasListener);
+  bool get _hasChangeListener => (_changeController != null) && (_changeController!.hasListener);
 
   bool get _isActive => _hasStreamListener || _hasChangeListener;
+
   bool get _isInactive => !_isActive;
 }
 
 /// A read-only 'view' of something. Allows getting the current value and
 /// listening for values and changes.
 abstract class ObservableView<T> extends ChangeAware<T> implements Disposable {
-  T get value;
+  T? get value;
 
   /// Blocks until [value] is non-null, and then completes with that value.
   ///
@@ -181,7 +177,7 @@ abstract class ObservableView<T> extends ChangeAware<T> implements Disposable {
 
   /// A [Stream] of all values on this view, including the current [value] at
   /// the time the stream is listened to.
-  Stream<T> get values;
+  Stream<T?> get values;
 
   /// A [Stream] of all non-null values on this view, including the current
   /// [value] at the time the stream is listened to (if it's non-null).
@@ -194,11 +190,11 @@ abstract class ObservableView<T> extends ChangeAware<T> implements Disposable {
   /// on this view's [value], [stream], and [changes] properties.
   ///
   /// Disposing of the mapped view doesn't affect this view in any way.
-  ObservableView<M> map<M>(M Function(T) mapper);
+  ObservableView<M> map<M>(M Function(T?) mapper);
 
   /// An [ObservableView] of the most-recently-published value on the given
   /// [stream].
-  factory ObservableView.fromStream(Stream<T> stream, {T initialValue}) =>
+  factory ObservableView.fromStream(Stream<T> stream, {T? initialValue}) =>
       ObservableReference(initialValue)..listen(stream);
 }
 
@@ -206,7 +202,7 @@ abstract class ObservableView<T> extends ChangeAware<T> implements Disposable {
 /// [stream] properties.
 abstract class ObservableViewMixin<T> implements ObservableView<T> {
   @override
-  Stream<Change<T>> get changes {
+  Stream<Change<T?>> get changes {
     var last = value;
     // Want to do this using stream.map so that the `changes` stream has the
     // same broadcastness/syncness as the `stream` stream.
@@ -218,12 +214,11 @@ abstract class ObservableViewMixin<T> implements ObservableView<T> {
   }
 
   @override
-  Future<T> get firstNonNull => value != null
-      ? Future.value(value)
-      : stream.firstWhere((value) => value != null);
+  Future<T> get firstNonNull =>
+      (value != null ? Future<T>.value(value!) : stream.firstWhere((T? value) => value != null)) as Future<T>;
 
   @override
-  Stream<T> get values {
+  Stream<T?> get values {
     // Unlike with `changes`, we're OK here returning an async non-broadcast
     // stream instead of trying to inherit the broadcastness/syncness of the
     // underlying `stream` -- if `stream` were sync, then
@@ -231,7 +226,7 @@ abstract class ObservableViewMixin<T> implements ObservableView<T> {
     // before anything could possibly listen to it, which really defeats the
     // point of even calling `values` in the first place.
 
-    StreamController<T> controller;
+    late StreamController<T?> controller;
     controller = StreamController(onListen: () {
       controller.add(value);
       controller.addStream(stream).then((_) => controller.close());
@@ -240,18 +235,18 @@ abstract class ObservableViewMixin<T> implements ObservableView<T> {
   }
 
   @override
-  Stream<T> get nonNullValues => values.where((value) => value != null);
+  Stream<T> get nonNullValues => values.where((value) => value != null).cast<T>();
 
   @override
-  ObservableView<M> map<M>(M Function(T) mapper) =>
-      _MappedView<T, M>(this, mapper);
+  ObservableView<M> map<M>(M Function(T?) mapper) => _MappedView<T, M>(this, mapper);
 }
 
 /// An [ObservableView] that just points at an existing [ObservableView] and
 /// passes it through a mapping function.
 class _MappedView<I, O> extends ObservableViewMixin<O> {
   final ObservableView<I> _delegate;
-  final O Function(I) _mapper;
+  final O Function(I?) _mapper;
+
   _MappedView(this._delegate, this._mapper);
 
   @override
@@ -268,29 +263,27 @@ class _MappedView<I, O> extends ObservableViewMixin<O> {
 ///
 /// Changes to the value using `value=` are added to a broadcast stream. If the
 /// new value is equivalent to the current value, nothing's added to the stream.
-class ObservableReference<T> extends ChangeNotificationProvider<T>
-    with ObservableViewMixin<T> {
+class ObservableReference<T> extends ChangeNotificationProvider<T> with ObservableViewMixin<T> {
   static bool _defaultEq(a, b) => a == b;
 
   final EqualsFn<T> _equalsFn;
-  StreamSubscription _listenSub;
-  T _value;
+  StreamSubscription? _listenSub;
+  T? _value;
 
   /// Creates a listenable value holder, starting with the given value.
   /// Optionally takes custom equality function.
   /// Changes are published synchronously by default. When [coalesce] is set,
   /// the changes in the current execution block are collected, and only the
   /// last value will be published (in an async scheduled microtask).
-  ObservableReference(this._value,
-      {EqualsFn<T> equalsFn = _defaultEq, bool coalesce = false})
+  ObservableReference(this._value, {EqualsFn<T> equalsFn = _defaultEq, bool coalesce = false})
       : _equalsFn = equalsFn,
         super(coalesce);
 
   /// The currently-set value.
-  T get value => _value;
+  T? get value => _value;
 
   /// Sets the value and publishes an event to the stream.
-  set value(T value) {
+  set value(T? value) {
     if (_equalsFn(_value, value)) return;
     var previous = _value;
     _value = value;
@@ -307,7 +300,7 @@ class ObservableReference<T> extends ChangeNotificationProvider<T>
     _listenSub = stream.listen((v) {
       value = v;
     });
-    return _listenSub.asFuture();
+    return _listenSub!.asFuture();
   }
 
   /// A [Stream] of all non-null values on this view, including the current
@@ -329,18 +322,14 @@ class ObservableReference<T> extends ChangeNotificationProvider<T>
 /// Merges multiple updates of [ObserveAware]s and emits a single update
 /// notification stream.
 class ObservableComposite<T> extends ChangeNotificationProvider<T> {
-  final Map<Stream, StreamSubscription> _subscriptions =
-      <Stream, StreamSubscription>{};
+  final Map<Stream, StreamSubscription> _subscriptions = <Stream, StreamSubscription>{};
   final _disposer = Disposer.oneShot();
   final bool _withStackTrace;
 
   /// Changes are published synchronously by default. When [coalesce] is set,
   /// the changes in the current execution block are collected, and only the
   /// one event with null value will be published (in an async scheduled microtask).
-  ObservableComposite(
-      {bool coalesce = false,
-      List<ObserveAware> values,
-      bool withStackTrace = false})
+  ObservableComposite({bool coalesce = false, List<ObserveAware>? values, bool withStackTrace = false})
       : _withStackTrace = withStackTrace,
         super(coalesce) {
     if (values != null) {
@@ -351,12 +340,10 @@ class ObservableComposite<T> extends ChangeNotificationProvider<T> {
   }
 
   /// Starts listening on value changes (if not already doing so).
-  ObserveAware register(ObserveAware value,
-      {ObserveAware replaces, bool initialNotification = true}) {
+  ObserveAware? register(ObserveAware? value, {ObserveAware? replaces, bool initialNotification = true}) {
     if (value == null) return null;
-    Stream replacesStream = (replaces == null) ? null : replaces.stream;
-    registerStream(value.stream,
-        replaces: replacesStream, initialNotification: initialNotification);
+    Stream? replacesStream = (replaces == null) ? null : replaces.stream;
+    registerStream(value.stream, replaces: replacesStream, initialNotification: initialNotification);
     if (value is Disposable) {
       _disposer.addDisposable(value);
     }
@@ -364,14 +351,13 @@ class ObservableComposite<T> extends ChangeNotificationProvider<T> {
   }
 
   /// Stops listening on value changes.
-  void unregister(ObserveAware value) {
+  void unregister(ObserveAware? value) {
     if (value == null) return;
     unregisterStream(value.stream);
   }
 
   /// Starts listening on value changes (if not already doing so).
-  Stream registerStream(Stream stream,
-      {Stream replaces, bool initialNotification = true}) {
+  Stream registerStream(Stream stream, {Stream? replaces, bool initialNotification = true}) {
     if (_subscriptions.containsKey(stream)) {
       // little sanity check
       assert(replaces == null);
@@ -381,7 +367,7 @@ class ObservableComposite<T> extends ChangeNotificationProvider<T> {
     if (replaces != null) {
       unregisterStream(replaces);
     }
-    StackTrace stackTrace;
+    StackTrace? stackTrace;
     assert(() {
       // stackTrace is only used in debugging
       if (_withStackTrace) {
@@ -402,9 +388,9 @@ class ObservableComposite<T> extends ChangeNotificationProvider<T> {
   }
 
   /// Stops listening on stream events.
-  void unregisterStream(Stream stream) {
+  void unregisterStream(Stream? stream) {
     if (stream == null) return;
-    StreamSubscription subs = _subscriptions.remove(stream);
+    StreamSubscription? subs = _subscriptions.remove(stream);
     if (subs != null) {
       subs.cancel();
     }

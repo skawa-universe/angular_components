@@ -13,7 +13,6 @@ import 'package:angular_components/src/laminate/ruler/ruler_interface.dart';
 
 /// An implementation of ruler that works on Angular [ElementRef] objects.
 @Deprecated('Use DomRuler instead. ElementRef is deprecated.')
-@Injectable()
 class NgRuler implements Ruler<ElementRef> {
   // TODO(google): Deprecate doing this when web workers introduced.
   final DomRuler _domRuler;
@@ -32,16 +31,16 @@ class NgRuler implements Ruler<ElementRef> {
 
   @override
   Future<void> update(ElementRef elementRef,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true}) {
     return _domRuler.update(elementRef.nativeElement,
         cssClasses: cssClasses,
@@ -59,16 +58,16 @@ class NgRuler implements Ruler<ElementRef> {
 
   @override
   void updateSync(ElementRef elementRef,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true}) {
     return _domRuler.updateSync(elementRef.nativeElement,
         cssClasses: cssClasses,

@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/focus/focus.dart';
 import 'package:angular_components/interfaces/has_disabled.dart';
 import 'package:angular_components/utils/angular/properties/properties.dart';
@@ -57,10 +56,10 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   final ChangeDetectorRef _changeDetector;
   final DomService _domService;
 
-  StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   @ViewChild('textareaEl')
-  ElementRef textareaEl;
+  HtmlElement? textareaEl;
 
   /// The underlying <textarea> element.
   ///
@@ -69,7 +68,7 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   /// from! If that's the case, please consider contributing your changes
   /// back upstream. Feel free to contact acx-widgets@ for more guidance.
   @override
-  ElementRef get inputRef => textareaEl;
+  HtmlElement? get inputRef => textareaEl;
 
   /// The initial/minimum number of rows for multiline input.
   /// Default value is 1.
@@ -83,7 +82,7 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   int _inputLineHeight = 16;
 
   MaterialMultilineInputComponent(
-      @Self() @Optional() NgControl cd,
+      @Self() @Optional() NgControl? cd,
       ChangeDetectorRef changeDetector,
       DeferredValidator validator,
       this._domService)
@@ -96,24 +95,24 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   void focus() => super.focus();
 
   @ViewChild('popupSourceEl')
-  ElementRef popupSourceEl;
+  HtmlElement? popupSourceEl;
 
   /// Container element for popup positioning.
   @override
-  ElementRef get elementRef => popupSourceEl;
+  HtmlElement? get elementRef => popupSourceEl;
 
   /// Text used to size the multiline textarea.
   String get mirrorText => (inputText ?? '') + '\n';
 
   @ViewChild('lineHeightMeasure')
-  set lineHeightMeasure(ElementRef value) {
+  set lineHeightMeasure(HtmlElement? value) {
     // There's currently no strong use case of line height changing after it's
     // been measured. So we only measure it once when the view is rendered.
     _domService.scheduleRead(() {
       var isDestroyed = textareaEl == null;
       if (isDestroyed) return;
 
-      var height = (value.nativeElement as Element).clientHeight;
+      var height = value!.clientHeight;
       if (height != 0) {
         _inputLineHeight = height;
         _subscription?.cancel();
@@ -132,11 +131,11 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   }
 
   int get minInputHeight => rows * _inputLineHeight;
-  int get maxInputHeight => _maxRows > 0 ? _maxRows * _inputLineHeight : null;
+  int? get maxInputHeight => _maxRows > 0 ? _maxRows * _inputLineHeight : null;
 
   /// Sets height of the text area when the height does not change with the
   /// amount of text in it.
-  int get textAreaHeight => rows == maxRows ? maxInputHeight : null;
+  int? get textAreaHeight => rows == maxRows ? maxInputHeight : null;
 
   int get rows => _rows;
 
@@ -163,7 +162,7 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   /// The ID of an element which should be assigned to the inner input element's
   /// aria-describedby attribute.
   @Input()
-  String inputAriaDescribedBy;
+  String? inputAriaDescribedBy;
 
   /// Textarea element tabindex.
   ///
@@ -174,7 +173,7 @@ class MaterialMultilineInputComponent extends BaseMaterialInput
   void handleChange(Event event, TextAreaElement element) {
     inputChange(
       element.value,
-      element.validity.valid,
+      element.validity!.valid,
       element.validationMessage,
     );
     event.stopPropagation();

@@ -29,7 +29,7 @@ abstract class Selectable<T> {
   ///
   /// See [isSelectableIn], [isDisabledIn], and [isHiddenIn].
   static bool _isOptionCheck<T>(
-    Object isMaybeModel,
+    dynamic isMaybeModel,
     T item,
     SelectableOption option,
     bool defaultIfMissingInterface,
@@ -42,7 +42,7 @@ abstract class Selectable<T> {
 
   /// Returns the selectability of option [item] in [isMaybeModel].
   static SelectableOption getOptionIn<T>(
-    Object isMaybeModel,
+    dynamic isMaybeModel,
     T item, [
     SelectableOption defaultIfMissingInterface = SelectableOption.Selectable,
   ]) {
@@ -54,7 +54,7 @@ abstract class Selectable<T> {
 
   /// Returns a filter function based on [item] being selectable.
   static bool Function(T) filterWhereSelectable<T>(
-    Object isMaybeModel, [
+    dynamic isMaybeModel, [
     bool defaultIfMissingInterface = true,
   ]) {
     bool Function(T) isSelectable = (_) => defaultIfMissingInterface;
@@ -71,7 +71,7 @@ abstract class Selectable<T> {
 
   /// Returns whether [model] has [item] as a [SelectableOption.Selectable].
   static bool isSelectableIn<T>(
-    Object model,
+    dynamic model,
     T item, [
     bool defaultIfMissingInterface = true,
   ]) {
@@ -85,7 +85,7 @@ abstract class Selectable<T> {
 
   /// Returns whether [model] has [item] as a [SelectableOption.Disabled].
   static bool isDisabledIn<T>(
-    Object model,
+    dynamic model,
     T item, [
     bool defaultIfMissingInterface = false,
   ]) {
@@ -99,7 +99,7 @@ abstract class Selectable<T> {
 
   /// Returns whether [model] has [item] as a [SelectableOption.Hidden].
   static bool isHiddenIn<T>(
-    Object model,
+    dynamic model,
     T item, [
     bool defaultIfMissingInterface = false,
   ]) {
@@ -147,12 +147,12 @@ abstract class HasSelectionRationale<T> {
   ///         return 'As a manager, you may select this option.';
   ///       }
   ///     }
-  String getSelectableRationale(T item, [bool isSelectable = false]);
+  String? getSelectableRationale(T item, [bool isSelectable = false]);
 }
 
 class _NullHasSelectionRationale<T> implements HasSelectionRationale<T> {
   const _NullHasSelectionRationale();
 
   @override
-  String getSelectableRationale(T item, [bool isSelectable = false]) => null;
+  String? getSelectableRationale(T item, [bool isSelectable = false]) => null;
 }

@@ -64,7 +64,7 @@ class Color {
 
   /// A transformation used in the calculation of [_relativeLuminance].
   static double _luminanceChannel(double v) =>
-      (v <= 0.03928) ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4);
+      ((v <= 0.03928) ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4)).toDouble();
 
   /// The relative luminance of the color, as specified by
   /// https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef.
@@ -83,8 +83,7 @@ class Color {
   /// The background must be opaque.
   num contrastRatio(Color background) {
     if (background.alpha != 1) {
-      throw ArgumentError.value(background, 'background',
-          'Cannot calculate contrast against non-opaque backgrounds.');
+      throw ArgumentError.value(background, 'background', 'Cannot calculate contrast against non-opaque backgrounds.');
     }
     final a = alpha == 1 ? this : withBackground(background);
     final la = a._relativeLuminance;
@@ -105,26 +104,16 @@ class Color {
   /// [t] is the fraction of interpolation from [a] to [b]; between 0 and 1.
   ///
   /// If one color is null, a transparent instance of the other color is used.
-  static Color lerp(Color a, Color b, num t) {
+  static Color? lerp(Color? a, Color? b, num t) {
     if (a == null && b == null) return null;
-    if (a == null) return b.withAlpha(_lerpNum(0, b.alpha, t));
+    if (a == null) return b!.withAlpha(_lerpNum(0, b.alpha, t));
     if (b == null) return a.withAlpha(_lerpNum(a.alpha, 0, t));
-    return Color.rgba(
-        _lerpNum(a.red, b.red, t).toInt(),
-        _lerpNum(a.green, b.green, t).toInt(),
-        _lerpNum(a.blue, b.blue, t).toInt(),
-        _lerpNum(a.alpha, b.alpha, t));
+    return Color.rgba(_lerpNum(a.red, b.red, t).toInt(), _lerpNum(a.green, b.green, t).toInt(),
+        _lerpNum(a.blue, b.blue, t).toInt(), _lerpNum(a.alpha, b.alpha, t));
   }
 
-  static void _checkValues(int r, int g, int b, num a, [String s]) {
-    if (r < 0 ||
-        r > 255 ||
-        g < 0 ||
-        g > 255 ||
-        b < 0 ||
-        b > 255 ||
-        a < 0 ||
-        a > 1) {
+  static void _checkValues(int r, int g, int b, num a, [String? s]) {
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255 || a < 0 || a > 1) {
       throw FormatException('Invalid color format; value out of bounds.', s);
     }
   }
@@ -139,13 +128,11 @@ class Color {
       case 'r': // rgb
         final match = _rgbRE.firstMatch(s);
         if (match == null) break;
-        final values = match[1].split(_separatorRE);
+        final values = match[1]!.split(_separatorRE);
         if (values.length != 3 && values.length != 4) break;
         int color(String s) {
           final last = s.length - 1;
-          return s[last] == '%'
-              ? 255 * int.parse(s.substring(0, last)) ~/ 100
-              : int.parse(s);
+          return s[last] == '%' ? 255 * int.parse(s.substring(0, last)) ~/ 100 : int.parse(s);
         }
 
         final r = color(values[0]);
@@ -189,28 +176,20 @@ class Color {
   /// If [background] is opaque, the returned color will also be opaque.
   Color withBackground(Color background) => alpha == 1
       ? this
-      : Color.rgba(
-          _lerpNum(background.red, red, alpha).toInt(),
-          _lerpNum(background.green, green, alpha).toInt(),
-          _lerpNum(background.blue, blue, alpha).toInt(),
-          _lerpNum(background.alpha, 1, alpha));
+      : Color.rgba(_lerpNum(background.red, red, alpha).toInt(), _lerpNum(background.green, green, alpha).toInt(),
+          _lerpNum(background.blue, blue, alpha).toInt(), _lerpNum(background.alpha, 1, alpha));
 
-  String get _alphaString =>
-      alpha < _alphaThreshold ? '0' : alpha.toStringAsFixed(2);
+  String get _alphaString => alpha < _alphaThreshold ? '0' : alpha.toStringAsFixed(2);
 
   /// Returns this as a string in rgb() or rgba() functional notation.
-  String get rgbString => alpha == 1
-      ? 'rgb($red,$green,$blue)'
-      : 'rgba($red,$green,$blue,$_alphaString)';
+  String get rgbString => alpha == 1 ? 'rgb($red,$green,$blue)' : 'rgba($red,$green,$blue,$_alphaString)';
 
   /// Returns a 2-character hex representation of an int between 0 and 255.
-  static String _toHex(num value) =>
-      value.toInt().toRadixString(16).padLeft(2, '0');
+  static String _toHex(num value) => value.toInt().toRadixString(16).padLeft(2, '0');
 
   /// Returns this as a string in #rrggbb or #rrggbbaa hex notation.
   String get hexString =>
-      '#${_toHex(red)}${_toHex(green)}${_toHex(blue)}' +
-      (alpha == 1 ? '' : '${_toHex(255 * alpha)}');
+      '#${_toHex(red)}${_toHex(green)}${_toHex(blue)}' + (alpha == 1 ? '' : '${_toHex(255 * alpha)}');
 
   @override
   String toString() => rgbString;
@@ -218,11 +197,7 @@ class Color {
   @override
   bool operator ==(o) =>
       identical(this, o) ||
-      o is Color &&
-          red == o.red &&
-          green == o.green &&
-          blue == o.blue &&
-          (alpha - o.alpha).abs() < _alphaThreshold;
+      o is Color && red == o.red && green == o.green && blue == o.blue && (alpha - o.alpha).abs() < _alphaThreshold;
 
   @override
   int get hashCode => hash4(red, green, blue, alpha);
@@ -232,8 +207,6 @@ class Color {
   /// The distance is calculated using the rgb channels and ignores the alpha
   /// channel.
   int distanceFrom(Color other) {
-    return math.pow(other.red - red, 2) +
-        math.pow(other.blue - blue, 2) +
-        math.pow(other.green - green, 2);
+    return (math.pow(other.red - red, 2) + math.pow(other.blue - blue, 2) + math.pow(other.green - green, 2)).toInt();
   }
 }

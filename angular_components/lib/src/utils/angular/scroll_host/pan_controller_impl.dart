@@ -28,10 +28,10 @@ class NonTouchPanController implements PanController {
   final DomService domService;
   final Element host;
 
-  StreamController<PanEvent> _controller;
-  Stream<PanEvent> _stream;
-  StreamSubscription<WheelEvent> _onWheelSubscription;
-  StreamSubscription<Event> _onScrollSubscription;
+  StreamController<PanEvent>? _controller;
+  Stream<PanEvent>? _stream;
+  StreamSubscription<WheelEvent>? _onWheelSubscription;
+  StreamSubscription<Event>? _onScrollSubscription;
 
   // border pan indicators
   bool _panTop = false;
@@ -45,12 +45,12 @@ class NonTouchPanController implements PanController {
   // registering the fact that the scrolling happened after the panning state
   bool _endPan = false;
 
-  PanEvent _lastEvent;
+  PanEvent? _lastEvent;
 
-  Timer _eventCollectTimer;
-  Disposable _notificationSender;
-  Timer _scrollCooldownTimer;
-  Timer _deduplicationTimer;
+  Timer? _eventCollectTimer;
+  Disposable? _notificationSender;
+  Timer? _scrollCooldownTimer;
+  Timer? _deduplicationTimer;
 
   NonTouchPanController(this.ngZone, this.domService, this.host);
 
@@ -61,9 +61,9 @@ class NonTouchPanController implements PanController {
       _controller = StreamController.broadcast(
           sync: true, onListen: _onListen, onCancel: _onCancel);
       _stream =
-          ZonedStream<PanEvent>(_controller.stream, ngZone.runOutsideAngular);
+          ZonedStream<PanEvent>(_controller!.stream, ngZone.runOutsideAngular);
     }
-    return _stream;
+    return _stream!;
   }
 
   int get maxScrollX => (host.scrollWidth - host.clientWidth);
@@ -121,7 +121,7 @@ class NonTouchPanController implements PanController {
           (!event.isSubsetOf(_lastEvent))) {
         _notificationSender = domService.scheduleRead(() {
           _notificationSender = null;
-          _controller.add(event);
+          _controller!.add(event);
         });
         _lastEvent = event;
         _scheduleDeduplication();
@@ -138,11 +138,11 @@ class NonTouchPanController implements PanController {
 
   void _cancelSubscriptions() {
     if (_onWheelSubscription != null) {
-      _onWheelSubscription.cancel();
+      _onWheelSubscription!.cancel();
       _onWheelSubscription = null;
     }
     if (_onScrollSubscription != null) {
-      _onScrollSubscription.cancel();
+      _onScrollSubscription!.cancel();
       _onScrollSubscription = null;
     }
   }
@@ -157,7 +157,7 @@ class NonTouchPanController implements PanController {
 
   void _cancelScrollingCooldown() {
     if (_scrollCooldownTimer != null) {
-      _scrollCooldownTimer.cancel();
+      _scrollCooldownTimer!.cancel();
       _scrollCooldownTimer = null;
     }
   }
@@ -172,7 +172,7 @@ class NonTouchPanController implements PanController {
 
   void _cancelDeduplication() {
     if (_deduplicationTimer != null) {
-      _deduplicationTimer.cancel();
+      _deduplicationTimer!.cancel();
       _deduplicationTimer = null;
     }
   }
@@ -180,15 +180,15 @@ class NonTouchPanController implements PanController {
   @override
   void dispose() {
     if (_notificationSender != null) {
-      _notificationSender.dispose();
+      _notificationSender!.dispose();
       _notificationSender = null;
     }
     if (_controller != null) {
-      _controller.close();
+      _controller!.close();
     }
     _cancelSubscriptions();
     if (_eventCollectTimer != null) {
-      _eventCollectTimer.cancel();
+      _eventCollectTimer!.cancel();
       _eventCollectTimer = null;
     }
     _cancelScrollingCooldown();

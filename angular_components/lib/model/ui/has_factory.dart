@@ -13,11 +13,10 @@ export 'has_renderer.dart';
 
 /// Defines a method that returns a factory to render the Item.  The component
 /// created must implement [RendersValue].
-typedef FactoryRenderer<T extends RendersValue, I> = ComponentFactory Function(
-    I item);
+typedef FactoryRenderer<T extends RendersValue, I> = ComponentFactory Function(I item);
 
 /// HasFactoryRenderer defines a method that takes in an item and returns the
 /// factory to use to render the item.
 abstract class HasFactoryRenderer<T extends RendersValue, I> {
-  FactoryRenderer<T, I> factoryRenderer;
+  late FactoryRenderer<T, I?>? factoryRenderer;
 }

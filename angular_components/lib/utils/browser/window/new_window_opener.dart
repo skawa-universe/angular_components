@@ -4,10 +4,7 @@
 
 import 'dart:html';
 
-import 'package:angular/angular.dart';
-
 /// Utility class to allow opening a URL in a new window.
-@Injectable()
 class NewWindowOpener {
   void open(String url) => openInNewWindow(url);
 }
@@ -20,7 +17,7 @@ void openInNewWindow(String url) {
   var anchorElement = AnchorElement(href: url)
     ..rel = 'noopener noreferrer'
     ..target = '_blank';
-  document.body.append(anchorElement);
+  document.body!.append(anchorElement);
   anchorElement.click();
   anchorElement.remove();
 }

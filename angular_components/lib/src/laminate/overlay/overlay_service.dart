@@ -13,7 +13,6 @@ import 'package:logging/logging.dart';
 
 /// A low-level service which exists to be able to manage the overlay
 /// container and overlay panes.
-@Injectable()
 class OverlayService {
   /// Creates an overlay pane within the registered container.
   ///
@@ -71,7 +70,7 @@ class OverlayService {
       this._ngZone,
       @Inject(overlaySyncDom) this._useDomSynchronously,
       this._renderService,
-      @SkipSelf() @Optional() OverlayService existingInstance) {
+      @SkipSelf() @Optional() OverlayService? existingInstance) {
     assert(() {
       // Overlay service should not be injected if it is already available
       if (existingInstance != null) {

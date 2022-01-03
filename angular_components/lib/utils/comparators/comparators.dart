@@ -15,7 +15,7 @@ abstract class Comparators<T> implements Comparable<T> {
 
   @override
   bool operator ==(other) =>
-      other is T && runtimeType == other.runtimeType && compareTo(other) == 0;
+      other is T && runtimeType == other.runtimeType && compareTo(other as T) == 0;
 }
 
 /// This can be extended in classes that are using const constructors.
@@ -31,5 +31,5 @@ abstract class ConstComparators<T> implements Comparable<T> {
 
   @override
   bool operator ==(other) =>
-      other is T && runtimeType == other.runtimeType && compareTo(other) == 0;
+      other is T && runtimeType == other.runtimeType && compareTo(other as T) == 0;
 }

@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/dynamic_component/dynamic_component.dart';
 import 'package:angular_components/interfaces/has_disabled.dart';
 import 'package:angular_components/material_menu/affix/base_affix.dart';
@@ -34,15 +33,15 @@ import 'package:quiver/core.dart' as qc;
 class MenuItemAffixListComponent implements HasDisabled, OnDestroy {
   final ChangeDetectorRef _cdRef;
 
-  StreamSubscription _itemChangeStreamSub;
+  StreamSubscription? _itemChangeStreamSub;
 
   final _affixComponentRefs = <_AffixRef>[];
 
-  ObservableList<MenuItemAffix> _items;
+  ObservableList<MenuItemAffix>? _items;
 
   @ViewChild('loadPoint', read: ViewContainerRef)
   @visibleForTemplate
-  ViewContainerRef viewRef;
+  ViewContainerRef? viewRef;
 
   bool _disabled = false;
 
@@ -59,15 +58,15 @@ class MenuItemAffixListComponent implements HasDisabled, OnDestroy {
 
   /// Observable list of affix items.
   @Input()
-  set items(ObservableList<MenuItemAffix> items) {
+  set items(ObservableList<MenuItemAffix>? items) {
     _itemChangeStreamSub?.cancel();
 
-    _itemChangeStreamSub = items?.listChanges?.listen((change) {
+    _itemChangeStreamSub = items?.listChanges.listen((change) {
       _updateVisibleItems(change);
       _cdRef.markForCheck();
     });
 
-    _initializeItems(items.whereType<BaseMenuItemAffixModel>());
+    _initializeItems((items ?? []).whereType<BaseMenuItemAffixModel>());
   }
 
   bool get hasAffixes => _items?.isNotEmpty ?? false;
@@ -79,7 +78,7 @@ class MenuItemAffixListComponent implements HasDisabled, OnDestroy {
   }
 
   void _clearChildren() {
-    viewRef.clear();
+    viewRef!.clear();
     for (final ref in _affixComponentRefs.expand((ref) => ref.componentRef)) {
       ref.destroy();
     }
@@ -135,7 +134,7 @@ class MenuItemAffixListComponent implements HasDisabled, OnDestroy {
 
     return _AffixRef(
         affix,
-        viewRef.createComponent(affix.componentFactory, index)
+        viewRef!.createComponent(affix.componentFactory, index)
           ..location.classes.add('affix')
           ..instance.value = affix
           ..instance.disabled = disabled);

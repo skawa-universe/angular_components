@@ -7,11 +7,7 @@ import 'package:angular_components/model/selection/selection_container.dart';
 import 'package:angular_components/model/ui/has_factory.dart';
 
 /// An limited interface for child groups to use to access the tree.
-abstract class MaterialTreeRoot<T>
-    implements
-        SelectionContainer<T>,
-        HasComponentRenderer<RendersValue, Object>,
-        HasFactoryRenderer<RendersValue, T> {
+abstract class MaterialTreeRoot<T> implements SelectionContainer<T>, HasFactoryRenderer<RendersValue, T> {
   /// Whether a filter is currently applied.
   bool isFiltered = false;
 
@@ -46,5 +42,5 @@ abstract class MaterialTreeRoot<T>
   bool get allowParentMultiSelection => true;
 
   /// The previously toggled node.
-  T previouslyToggledNode;
+  T? previouslyToggledNode;
 }

@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:angular/angular.dart';
 import 'package:angular_components/annotations/rtl_annotation.dart';
 import 'package:angular_components/laminate/enums/alignment.dart';
 import 'package:angular_components/laminate/ruler/dom_ruler.dart';
@@ -19,7 +18,6 @@ typedef AsyncMeasureSize<E> = Stream<Rectangle> Function(E element,
     {bool track});
 
 /// A factory that can [createPopupSource] from HTML elements.
-@Injectable()
 class DomPopupSourceFactory {
   final DomRuler _domRuler;
 
@@ -77,9 +75,9 @@ class DomPopupSource implements ElementPopupSource {
     _alignOriginY = alignOriginY;
   }
 
-  Alignment _alignOriginX;
-  Alignment _alignOriginY;
-  String _id;
+  late Alignment _alignOriginX;
+  late Alignment _alignOriginY;
+  String? _id;
 
   @override
   Alignment get alignOriginX => _alignOriginX;
@@ -99,7 +97,7 @@ class DomPopupSource implements ElementPopupSource {
   bool get isRtl => _isRtl;
 
   @override
-  set popupId(String id) {
+  set popupId(String? id) {
     _id = id;
     if (_id == null || !_initAriaAttributes) return;
     sourceElement.setAttribute('aria-haspopup', 'true');
@@ -118,7 +116,7 @@ class DomPopupSource implements ElementPopupSource {
   @override
   void onOpen() {
     if (_id == null || !_initAriaAttributes) return;
-    sourceElement.setAttribute('aria-owns', _id);
+    sourceElement.setAttribute('aria-owns', _id!);
   }
 
   @override

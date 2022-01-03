@@ -5,11 +5,9 @@
 import 'package:angular_components/model/selection/selection_model.dart';
 
 /// Single selection model that always has a value selected
-class RadioGroupSingleSelectionModel<T>
-    extends DelegatingSingleSelectionModel<T> {
-  RadioGroupSingleSelectionModel([T initialValue])
-      : super(SelectionModel<T>.single(
-            selected: initialValue == null ? null : initialValue));
+class RadioGroupSingleSelectionModel<T> extends DelegatingSingleSelectionModel<T> {
+  RadioGroupSingleSelectionModel([T? initialValue])
+      : super(SingleSelectionModel<T>(selected: initialValue == null ? null : initialValue));
 
   @override
   void clear() {}

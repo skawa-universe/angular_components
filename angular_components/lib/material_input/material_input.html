@@ -12,7 +12,7 @@
       <material-icon class="glyph leading"
                      icon="{{leadingGlyph}}"
                      [attr.aria-label]="leadingGlyphAriaLabel"
-                     [attr.disabled]="disabled">
+                     [attr.disabled]="disabled.toString()">
       </material-icon>
     </span>
     <span *ngIf="hasLeadingText"
@@ -44,15 +44,15 @@
              class="input"
              [attr.aria-activedescendant]="inputAriaActivedescendent"
              [attr.aria-autocomplete]="inputAriaAutocomplete"
-             [attr.aria-expanded]="inputAriaExpanded"
+             [attr.aria-expanded]="inputAriaExpanded.toString()"
              [attr.aria-haspopup]="inputAriaHasPopup"
-             [attr.aria-invalid]="invalid"
+             [attr.aria-invalid]="invalid.toString()"
              [attr.aria-label]="inputAriaLabel"
              [attr.aria-labelledby]="labelId"
              [attr.aria-describedby]="ariaDescribedBy"
              [attr.aria-owns]="inputAriaOwns"
              [attr.aria-controls]="inputAriaControls"
-             [attr.aria-disabled]="disabled"
+             [attr.aria-disabled]="disabled.toString()"
              [attr.autocomplete]="inputAutocomplete"
              [attr.role]="role"
              [ngModel]="inputText"
@@ -78,11 +78,10 @@
       <material-icon class="glyph trailing"
                      icon="{{trailingGlyph}}"
                      [attr.aria-label]="trailingGlyphAriaLabel"
-                     [attr.disabled]="disabled">
+                     [attr.disabled]="disabled.toString()">
       </material-icon>
     </span>
-    <ng-content select="[trailing]">
-    </ng-content>
+    <ng-content select="[trailing]"></ng-content>
   </div>
 
   <div class="underline">
@@ -111,8 +110,7 @@
        [class.invalid]="invalid"
        *ngSwitchWhen="errorState">
     {{errorMessage}}
-    <ng-content select="[error-text-trailing]">
-    </ng-content>
+    <ng-content select="[error-text-trailing]"></ng-content>
   </div>
   <div class="hint-text" *ngSwitchWhen="hintState">
     {{hintText}}

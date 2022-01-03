@@ -62,7 +62,7 @@ class DropdownMenuComponent extends Object
 
   /// Dropdown button text.
   @Input()
-  String buttonText;
+  String? buttonText;
 
   bool _disabled = false;
 
@@ -76,18 +76,18 @@ class DropdownMenuComponent extends Object
 
   /// The id of an element that describes the button for the drop down.
   @Input()
-  String buttonAriaLabelledBy;
+  String? buttonAriaLabelledBy;
 
   /// One or more space-delimited ids of elements that provide additional
   /// description for the button for the drop down.
   @Input()
-  String buttonAriaDescribedBy;
+  String? buttonAriaDescribedBy;
 
   /// Whether the menu is tabbable or not.
   @Input()
   bool tabbable = true;
 
-  String _popupClass;
+  late String _popupClass;
   String get popupClass => _popupClass;
 
   /// CSS classes to append onto the menu popup.
@@ -103,11 +103,11 @@ class DropdownMenuComponent extends Object
   final bool _dropdownStyle = false;
 
   @ViewChild(DropdownButtonComponent)
-  DropdownButtonComponent dropdownButton;
+  DropdownButtonComponent? dropdownButton;
 
   @ViewChild(MenuPopupComponent)
-  MenuPopupComponent menuPopup;
+  MenuPopupComponent? menuPopup;
 
-  Focusable get _focusTarget =>
+  Focusable? get _focusTarget =>
       disabled ? null : (isExpanded ? menuPopup : dropdownButton);
 }

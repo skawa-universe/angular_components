@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/annotations/rtl_annotation.dart';
 import 'package:angular_components/focus/focus_item.dart';
 import 'package:angular_components/focus/focus_list.dart';
@@ -23,12 +22,7 @@ import 'package:angular_components/material_tab/tab_change_event.dart';
 /// focus style, and 2) screen-readers can reckon what has changed.
 @Component(
   selector: 'material-tab-strip',
-  directives: [
-    FocusListDirective,
-    FocusItemDirective,
-    TabButtonComponent,
-    NgFor
-  ],
+  directives: [FocusListDirective, FocusItemDirective, TabButtonComponent, NgFor],
   templateUrl: 'fixed_material_tab_strip.html',
   styleUrls: ['fixed_material_tab_strip.scss.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,8 +33,8 @@ class FixedMaterialTabStripComponent implements AfterViewInit {
   final int _transitionAmount;
   final ChangeDetectorRef _changeDetector;
   int _activeTabIndex = 0;
-  String _tabIndicatorTransform;
-  List<String> _tabLabels;
+  late String _tabIndicatorTransform;
+  List<String>? _tabLabels;
   NgZone _ngZone;
 
   /// Stream of [TabChangeEvent] instances, published before the tab has
@@ -50,8 +44,7 @@ class FixedMaterialTabStripComponent implements AfterViewInit {
   /// changing.
   @Output()
   Stream<TabChangeEvent> get beforeTabChange => _beforeTabChange.stream;
-  final _beforeTabChange =
-      StreamController<TabChangeEvent>.broadcast(sync: true);
+  final _beforeTabChange = StreamController<TabChangeEvent>.broadcast(sync: true);
 
   /// Stream of [TabChangeEvent] instances, published when the tab has changed.
   @Output()
@@ -80,19 +73,18 @@ class FixedMaterialTabStripComponent implements AfterViewInit {
 
   /// List of tab button labels.
   @Input()
-  set tabLabels(List<String> labels) {
+  set tabLabels(List<String>? labels) {
     _tabLabels = labels;
     _updateTabIndicatorTransform();
   }
 
-  List<String> get tabLabels => _tabLabels;
+  List<String>? get tabLabels => _tabLabels;
 
   /// List of tab button ids.
   @Input()
-  List<String> tabIds;
+  List<String>? tabIds;
 
-  FixedMaterialTabStripComponent(this._changeDetector,
-      @Optional() @Inject(rtlToken) bool isRtl, this._ngZone)
+  FixedMaterialTabStripComponent(this._changeDetector, @Optional() @Inject(rtlToken) bool? isRtl, this._ngZone)
       : _transitionAmount = _calculateTransitionAmount(isRtl ?? false) {
     _updateTabIndicatorTransform();
   }
@@ -111,33 +103,33 @@ class FixedMaterialTabStripComponent implements AfterViewInit {
     activeTabIndex = index;
     _tabChange.add(event);
     _activeTabIndexChange.add(activeTabIndex);
-    focusController.setTabbable(activeTabIndex);
+    focusController!.setTabbable(activeTabIndex);
   }
 
   String activeStr(int index) {
     return '${activeTabIndex == index}';
   }
 
-  String tabId(int index) => tabIds?.elementAt(index);
+  String? tabId(int index) => tabIds?.elementAt(index);
 
   void _updateTabIndicatorTransform() {
-    var width = _tabLabels != null ? 1 / _tabLabels.length : 0;
+    var width = _tabLabels != null ? 1 / _tabLabels!.length : 0;
     var location = _activeTabIndex * width * _transitionAmount;
     _tabIndicatorTransform = 'translateX($location%) scaleX($width)';
   }
 
   @visibleForTemplate
   @ViewChild(FocusListDirective)
-  FocusListDirective focusController;
+  FocusListDirective? focusController;
 
   @visibleForTemplate
   @ViewChild('navibar')
-  HtmlElement naviBar;
+  HtmlElement? naviBar;
 
   @HostListener('focusout')
   void focusOutHandler(FocusEvent e) {
-    if (naviBar != null && !naviBar.contains(e.relatedTarget)) {
-      focusController.setTabbable(_activeTabIndex);
+    if (naviBar != null && !naviBar!.contains(e.relatedTarget as Node?)) {
+      focusController!.setTabbable(_activeTabIndex);
     }
   }
 
@@ -145,7 +137,7 @@ class FixedMaterialTabStripComponent implements AfterViewInit {
   void ngAfterViewInit() {
     // Sets the tabbable item if the activeIndex is set on initialization.
     _ngZone.runAfterChangesObserved(() {
-      focusController.setTabbable(_activeTabIndex);
+      focusController!.setTabbable(_activeTabIndex);
     });
   }
 }

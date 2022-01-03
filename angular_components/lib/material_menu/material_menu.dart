@@ -39,18 +39,15 @@ import 'package:angular_components/utils/disposer/disposer.dart';
     templateUrl: 'material_menu.html',
     changeDetection: ChangeDetectionStrategy.OnPush)
 class MaterialMenuComponent extends Object
-    with
-        FocusableMixin,
-        KeyboardHandlerMixin,
-        MenuPopupWrapper,
-        MenuPopupTrigger
+    with FocusableMixin, KeyboardHandlerMixin, MenuPopupWrapper, MenuPopupTrigger
     implements AfterViewInit, HasDisabled, OnDestroy {
   final HtmlElement _root;
   final _disposer = Disposer.oneShot();
 
   MaterialMenuComponent(this._root);
 
-  String _popupClass;
+  late String _popupClass;
+
   String get popupClass => _popupClass;
 
   /// CSS classes to append onto the menu popup.
@@ -64,7 +61,7 @@ class MaterialMenuComponent extends Object
 
   /// Trigger button text. Ignored if the [MenuModel] has an icon.
   @Input()
-  String buttonText;
+  String? buttonText;
 
   /// Whether the menu is disabled or not.
   @Input()
@@ -76,9 +73,9 @@ class MaterialMenuComponent extends Object
 
   /// Aria label for button trigger.
   @Input()
-  String ariaLabel;
+  String? ariaLabel;
 
-  String get tooltipText => menu?.tooltipText;
+  String? get tooltipText => menu?.tooltipText;
 
   bool get hasTooltip => menu?.hasTooltip ?? false;
 
@@ -86,22 +83,21 @@ class MaterialMenuComponent extends Object
 
   bool get hasIcon => menu?.uiIcon != null;
 
-  MaterialButtonComponent _button;
+  late MaterialButtonComponent _button;
 
   @ViewChild(MaterialButtonComponent)
-  set button(MaterialButtonComponent b) {
-    _button = b;
+  set button(MaterialButtonComponent? b) {
+    _button = b!;
   }
 
-  MenuPopupComponent _menuPopup;
+  late MenuPopupComponent _menuPopup;
 
   @ViewChild(MenuPopupComponent)
-  set menuPopup(MenuPopupComponent m) {
-    _menuPopup = m;
+  set menuPopup(MenuPopupComponent? m) {
+    _menuPopup = m!;
   }
 
-  Focusable get _focusTarget =>
-      disabled ? null : (isExpanded ? _menuPopup : _button);
+  Focusable? get _focusTarget => disabled ? null : (isExpanded ? _menuPopup : _button);
 
   @override
   void ngAfterViewInit() {

@@ -10,6 +10,7 @@ import 'package:angular_components/focus/focus.dart';
 import 'package:angular_components/material_radio/material_radio.dart';
 import 'package:angular_components/model/selection/selection_model.dart';
 import 'package:angular_components/utils/disposer/disposer.dart';
+import 'package:collection/collection.dart';
 
 /// Group containing multiple material radio buttons, enforcing that only one
 /// value in the group is selected.
@@ -37,20 +38,18 @@ import 'package:angular_components/utils/disposer/disposer.dart';
   changeDetection: ChangeDetectionStrategy.OnPush,
   visibility: Visibility.all, // Injected by members of the group.
 )
-class MaterialRadioGroupComponent
-    implements ControlValueAccessor<dynamic>, OnDestroy, AfterContentInit {
+class MaterialRadioGroupComponent implements ControlValueAccessor<dynamic>, OnDestroy, AfterContentInit {
   final NgZone _ngZone;
   final _disposer = Disposer.oneShot();
 
   List<MaterialRadioComponent> _radioComponents = <MaterialRadioComponent>[];
 
-  MaterialRadioGroupComponent(this._ngZone, @Self() @Optional() NgControl cd) {
+  MaterialRadioGroupComponent(this._ngZone, @Self() @Optional() NgControl? cd) {
     // When NgControl is present on the host element, the component participates
     // in the Forms API.
     cd?.valueAccessor = this;
 
-    _disposer.addStreamSubscription(
-        componentSelection.selectionChanges.listen((checkedChanges) {
+    _disposer.addStreamSubscription(componentSelection.selectionChanges.listen((checkedChanges) {
       // Need to uncheck if selection change was made via user action.
       for (var checkedChange in checkedChanges) {
         for (var radioComponent in checkedChange.removed) {
@@ -62,7 +61,7 @@ class MaterialRadioGroupComponent
       _resetTabIndex();
       _selected = _selectedRadioComponent?.value;
       if (_valueSelection != null && _selected != null) {
-        _valueSelection.select(_selected);
+        _valueSelection!.select(_selected);
       }
       _onChange.add(_selected);
     }));
@@ -84,8 +83,7 @@ class MaterialRadioGroupComponent
     for (var radioComponent in _radioComponents) {
       _disposer
         ..addStreamSubscription(radioComponent.focusmove.listen(_moveFocus))
-        ..addStreamSubscription(
-            radioComponent.selectionmove.listen(_moveSelection));
+        ..addStreamSubscription(radioComponent.selectionmove.listen(_moveSelection));
     }
   }
 
@@ -145,20 +143,18 @@ class MaterialRadioGroupComponent
     if (_valueSelection == value) return;
     _selectionSubscription?.cancel();
     _valueSelection = value;
-    _selectionSubscription = _valueSelection?.selectionChanges?.listen((_) {
-      selected = _valueSelection.selectedValues
-          .firstWhere((_) => true, orElse: () => null);
+    _selectionSubscription = _valueSelection?.selectionChanges.listen((_) {
+      selected = _valueSelection?.selectedValues.firstWhereOrNull((_) => true);
     });
   }
 
-  SelectionModel _valueSelection;
-  StreamSubscription<List<SelectionChangeRecord<dynamic>>>
-      _selectionSubscription;
+  SelectionModel? _valueSelection;
+  StreamSubscription<List<SelectionChangeRecord<dynamic>>>? _selectionSubscription;
 
   /// Internal selection model containing the radio component.
   final componentSelection = SelectionModel<MaterialRadioComponent>.single();
 
-  MaterialRadioComponent get _selectedRadioComponent {
+  MaterialRadioComponent? get _selectedRadioComponent {
     if (componentSelection.selectedValues.isEmpty) return null;
     return componentSelection.selectedValues.single;
   }
@@ -185,24 +181,22 @@ class MaterialRadioGroupComponent
   }
 
   dynamic _selected;
+
   dynamic get selected => _selected;
 
   void _moveFocus(FocusMoveEvent event) => _move(event);
+
   void _moveSelection(FocusMoveEvent event) => _move(event, true);
 
-  List<MaterialRadioComponent> _getFocusableChildren(
-      [MaterialRadioComponent source]) {
+  List<MaterialRadioComponent> _getFocusableChildren([MaterialRadioComponent? source]) {
     // Make sure current focus is in the list even if it's disabled.
-    return _radioComponents
-        .where((radioComponent) =>
-            !radioComponent.disabled || radioComponent == source)
-        .toList();
+    return _radioComponents.where((radioComponent) => !radioComponent.disabled || radioComponent == source).toList();
   }
 
   // Move focus and selection via keyboard event. Need to wrap, also jump over
   // disabled siblings.
   void _move(FocusMoveEvent event, [bool moveSelection = false]) {
-    MaterialRadioComponent source = event.focusItem;
+    MaterialRadioComponent source = event.focusItem as MaterialRadioComponent;
 
     // Siblings can be disabled, so we have to discount those when applying
     // offset.

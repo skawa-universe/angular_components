@@ -15,13 +15,12 @@ export 'package:angular_components/model/selection/tree_selection_mixin.dart';
 /// TODO(google): improve the performance of the defaultComaprator.
 /// It is doing 2 * O(n log n) string conversions (which might be cheap
 /// if itemRenderer is just returning a string or expensive).
-class TreeSelectionOptions<T> extends SelectionOptions<T>
-    with TreeSelectionMixin<T> {
-  Map<T, List<OptionGroup<T>>> _parentToChildrenMap;
+class TreeSelectionOptions<T> extends SelectionOptions<T> with TreeSelectionMixin<T> {
+  late Map<T, List<OptionGroup<T>>> _parentToChildrenMap;
   final Map<T, TreeSelectionOptionData<T>> _itemsOptions;
 
   final ItemRenderer<T> _itemRenderer;
-  Comparator<T> _comparator;
+  late Comparator<T> _comparator;
 
   TreeSelectionOptions()
       : _itemRenderer = defaultItemRenderer,
@@ -31,10 +30,9 @@ class TreeSelectionOptions<T> extends SelectionOptions<T>
   }
 
   TreeSelectionOptions.fromList(List<TreeSelectionOptionData<T>> listOfOptions,
-      {ItemRenderer<T> itemRenderer, Comparator<T> comparator})
+      {ItemRenderer<T>? itemRenderer, Comparator<T>? comparator})
       : _itemRenderer = itemRenderer ?? defaultItemRenderer,
-        _itemsOptions = Map<T, TreeSelectionOptionData<T>>.fromIterable(
-            listOfOptions,
+        _itemsOptions = Map<T, TreeSelectionOptionData<T>>.fromIterable(listOfOptions,
             key: (item) => (item as TreeSelectionOptionData<T>).value),
         super(const []) {
     _comparator = comparator ?? _defaultComparator;
@@ -49,28 +47,23 @@ class TreeSelectionOptions<T> extends SelectionOptions<T>
 
   @override
   DisposableFuture<List<OptionGroup<T>>> childrenOf(T e, [_]) {
-    return DisposableFuture<List<OptionGroup<T>>>.fromValue(
-        _parentToChildrenMap[e]);
+    return DisposableFuture<List<OptionGroup<T>>>.fromValue(_parentToChildrenMap[e]!);
   }
 
   @override
   Map<T, List<OptionGroup<T>>> getHierarchyMap() => _parentToChildrenMap;
 
   @override
-  T getParent(T child) {
+  T? getParent(T child) {
     return _itemsOptions[child]?.parent;
   }
 
-  Map<T, List<OptionGroup>> _generateParentToChildrenMap(
-      List<TreeSelectionOptionData<T>> options) {
+  Map<T, List<OptionGroup<T>>> _generateParentToChildrenMap(List<TreeSelectionOptionData<T>> options) {
     final parentToChildrenMap = <T, List<OptionGroup<T>>>{};
 
     for (var option in options) {
       // Put all children in a single option group.
-      parentToChildrenMap
-          .putIfAbsent(option.parent, () => [OptionGroup<T>([])])
-          .single
-          .add(option.value);
+      parentToChildrenMap.putIfAbsent(option.parent, () => [OptionGroup<T>([])]).single.add(option.value);
     }
 
     for (var groupList in parentToChildrenMap.values) {
@@ -80,8 +73,7 @@ class TreeSelectionOptions<T> extends SelectionOptions<T>
     return parentToChildrenMap;
   }
 
-  int _defaultComparator(T value1, T value2) =>
-      _itemRenderer(value1).compareTo(_itemRenderer(value2));
+  int _defaultComparator(T value1, T value2) => _itemRenderer(value1).compareTo(_itemRenderer(value2));
 }
 
 /// A [TreeSelectionOptionData] class is used as data to the selection options

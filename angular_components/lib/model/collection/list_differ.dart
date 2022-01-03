@@ -67,8 +67,8 @@ class _ComparingListDiff<T> implements ListDiff<T> {
 }
 
 class _ObservedListDiff<T> implements ListDiff<T> {
-  List<DiffEntry<T>> entries;
-  List<DiffEntry<T>> deleted;
+  late List<DiffEntry<T>> entries;
+  late List<DiffEntry<T>> deleted;
 
   _ObservedListDiff(List<ListChangeRecord> event) {
     _processEvent(event);

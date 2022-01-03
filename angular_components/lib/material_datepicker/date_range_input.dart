@@ -57,7 +57,7 @@ import 'package:angular_components/model/observable/observable.dart';
 )
 class DateRangeInputComponent implements OnInit, OnDestroy {
   final ChangeDetectorRef _changeDetector;
-  StreamSubscription _calendarStream;
+  StreamSubscription? _calendarStream;
 
   DateRangeInputComponent(this._changeDetector);
 
@@ -77,7 +77,7 @@ class DateRangeInputComponent implements OnInit, OnDestroy {
     _calendarStream?.cancel();
   }
 
-  void _onCalendarChange(CalendarState state) {
+  void _onCalendarChange(CalendarState? state) {
     _changeDetector.markForCheck();
   }
 
@@ -85,31 +85,27 @@ class DateRangeInputComponent implements OnInit, OnDestroy {
     if (disabled) {
       return;
     }
-    if (state.currentSelection == rangeId && !state.previewAnchoredAtStart) {
+    if (state!.currentSelection == rangeId && !state!.previewAnchoredAtStart) {
       return;
     }
-    _model.value = state.select(rangeId, previewAnchoredAtStart: false);
+    _model.value = state!.select(rangeId, previewAnchoredAtStart: false);
   }
 
   void onEndFocused() {
     if (disabled) {
       return;
     }
-    if (state.currentSelection == rangeId && state.previewAnchoredAtStart) {
+    if (state!.currentSelection == rangeId && state!.previewAnchoredAtStart) {
       return;
     }
-    _model.value = state.select(rangeId, previewAnchoredAtStart: true);
+    _model.value = state!.select(rangeId, previewAnchoredAtStart: true);
   }
 
   bool get isStartActive =>
-      state.currentSelection == rangeId &&
-      state.selections.isNotEmpty &&
-      !state.previewAnchoredAtStart;
+      state!.currentSelection == rangeId && state!.selections.isNotEmpty && !state!.previewAnchoredAtStart;
 
   bool get isEndActive =>
-      state.currentSelection == rangeId &&
-      state.selections.isNotEmpty &&
-      state.previewAnchoredAtStart;
+      state!.currentSelection == rangeId && state!.selections.isNotEmpty && state!.previewAnchoredAtStart;
 
   /// Fired when the selected date range changes. Text input only triggers this
   /// if both inputs are valid dates
@@ -119,10 +115,10 @@ class DateRangeInputComponent implements OnInit, OnDestroy {
 
   /// The selected date range.
   @Input()
-  set range(DateRange range) {
+  set range(DateRange? range) {
     if (range != _range && range?.start != null && range?.end != null) {
       // Publish changes, if both endpoints are set
-      _controller.add(range);
+      _controller.add(range!);
     }
     _range = range ?? DateRange(null, null);
   }
@@ -143,38 +139,40 @@ class DateRangeInputComponent implements OnInit, OnDestroy {
   bool get isDateInputRequired => !_isClearRangeSelected;
 
   DateRange _range = DateRange(null, null);
+
   DateRange get range => _range;
 
   /// An object describing the entire state of the calendar -- what's selected
   /// on the calendar, and whether or not the selection is currently "active".
   @Input()
-  set state(CalendarState state) {
+  set state(CalendarState? state) {
     _model.value = state;
     if (_calendarStream == null) _onCalendarChange(state);
   }
 
-  CalendarState get state => _model.value;
-  final ObservableReference<CalendarState> _model =
-      ObservableReference(CalendarState.empty(), coalesce: true);
+  CalendarState? get state => _model.value;
+  final ObservableReference<CalendarState> _model = ObservableReference(CalendarState.empty(), coalesce: true);
 
   /// Fired when the calendar state changes -- e.g. when the user starts
   /// dragging the selected date range.
   @Output()
-  Stream<CalendarState> get stateChange => _model.stream;
+  Stream<CalendarState?> get stateChange => _model.stream;
 
   /// ID of the range this date-range-input controls.
   @Input()
-  String rangeId;
+  String? rangeId;
 
-  Date get start => range.start;
-  set start(Date date) {
+  Date? get start => range.start;
+
+  set start(Date? date) {
     if (range.start != date) {
       range = DateRange(date, range.end);
     }
   }
 
-  Date get end => range.end;
-  set end(Date date) {
+  Date? get end => range.end;
+
+  set end(Date? date) {
     if (range.end != date) {
       range = DateRange(range.start, date);
     }
@@ -184,34 +182,34 @@ class DateRangeInputComponent implements OnInit, OnDestroy {
   // set the start date's maximum to the end date
   // and set the end date's minimum to the start date.
   // If either endpoint is not set, fall back to the entire range's min/maxDate.
-  Date get startMaxDate => end ?? maxDate;
-  Date get endMinDate => start ?? minDate;
+  Date? get startMaxDate => end ?? maxDate;
+
+  Date? get endMinDate => start ?? minDate;
 
   /// The [DateFormat] used to format dates. Defaults to `yMMMd`,
   /// e.g. "Jul 31, 2015".
   @Input()
-  DateFormat dateFormat = DateFormat.yMMMd();
+  DateFormat? dateFormat = DateFormat.yMMMd();
 
   /// The [DateFormat] used to format dates when the input is active.
   ///
   /// Defaults to `yMd`, e.g. "7/31/15".
   @Input()
-  DateFormat activeDateFormat = DateFormat.yMd();
+  DateFormat? activeDateFormat = DateFormat.yMd();
 
-  DateFormat get startDateFormat =>
-      isStartActive ? activeDateFormat : dateFormat;
+  DateFormat? get startDateFormat => isStartActive ? activeDateFormat : dateFormat;
 
-  DateFormat get endDateFormat => isEndActive ? activeDateFormat : dateFormat;
+  DateFormat? get endDateFormat => isEndActive ? activeDateFormat : dateFormat;
 
   /// The latest recognized date, inclusive.
   /// Defaults to Dec 31, 9999 -- i.e., limited to 4-digit years.
   @Input()
-  Date maxDate = Date(9999, DateTime.december, 31);
+  Date? maxDate = Date(9999, DateTime.december, 31);
 
   /// The earliest recognized date, inclusive.
   /// Defaults to Jan 1, 1000 -- i.e., limited to 4-digit years.
   @Input()
-  Date minDate = Date(1000, DateTime.january, 1);
+  Date? minDate = Date(1000, DateTime.january, 1);
 
   final startDateMsg = Intl.message('Start date',
       name: 'DateRangeInputComponent_startDateMsg',

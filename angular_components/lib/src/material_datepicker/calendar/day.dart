@@ -8,13 +8,13 @@ part of '../../../material_datepicker/calendar.dart';
 class CalendarDay {
   final Date date;
 
-  List<String> _classes;
+  late List<String> _classes;
 
-  CalendarDay(this.date, CalendarState state) {
+  CalendarDay(this.date, CalendarState? state) {
     updateClasses(state);
   }
 
-  void updateClasses(CalendarState state) {
+  void updateClasses(CalendarState? state) {
     _classes = state != null ? _boundaryClasses(state).toList() : [];
   }
 

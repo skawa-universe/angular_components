@@ -47,7 +47,6 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
 
   /// True if the slider disabled.
   @HostBinding('class.is-disabled')
-  @HostBinding('attr.aria-disabled')
   @Input()
   bool disabled = false;
 
@@ -75,7 +74,7 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   @Output()
   Stream<num> get valueChange => _changeController.stream;
 
-  num _leftValue = 0;
+  int _leftValue = 0;
 
   /// The current value of the [leftValue] input in a 2 sided slider, defaults
   /// to 0.
@@ -83,7 +82,7 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   /// When [isTwoSided] is true, then this represents the current value of the
   /// left slider knob. Must be between [min] and [max], inclusive, a multiple
   /// of [step] and less than or equal to [value].
-  num get leftValue => isTwoSided ? _leftValue : min;
+  int get leftValue => isTwoSided ? _leftValue : min.toInt();
   @Input()
   set leftValue(int val) {
     if (isTwoSided) {
@@ -159,7 +158,7 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
       return value % step == 0;
     } else {
       final epsilon = 1e-10;
-      double remainder = value % step;
+      double remainder = (value % step).toDouble();
       if (remainder < epsilon) return true;
       if (step - remainder < epsilon) return true;
       return false;
@@ -167,7 +166,7 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   }
 
   @ViewChild('container')
-  Element container;
+  Element? container;
 
   /// Whether the current user locale is RTL.
   bool get isRtl => Bidi.isRtlLanguage(Intl.defaultLocale ?? '');
@@ -181,10 +180,10 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   /// Updates the current value to reflect the given slider position, if needed.
   void _setValueToMousePosition(int position) {
     _domService.scheduleRead(() {
-      final containerWidth = container.clientWidth;
+      final containerWidth = container!.clientWidth;
       if (containerWidth == 0) return;
       final containerLeft =
-          container.getBoundingClientRect().left + window.scrollX;
+          container!.getBoundingClientRect().left + window.scrollX;
       final fractionOfTrackLtr = (position - containerLeft) / containerWidth;
       final fractionOfTrack =
           isRtl ? 1.0 - fractionOfTrackLtr : fractionOfTrackLtr;
@@ -200,14 +199,14 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
           (newValue < leftValue && !isRightKnobSelected)) {
         if (newValue != leftValue) {
           // Prevent left knob value from being greater than right knob value
-          leftValue = _getValidLeftValue(value, newValue);
+          leftValue = _getValidLeftValue(value.toDouble(), newValue.toDouble()).toInt();
           _leftChangeController.add(leftValue);
         }
       } else {
         // Adjust right knob in 1 or 2 sided slider.
         if (newValue != value) {
           // Prevent right knob value from being less than left knob value
-          value = _getValidRightValue(leftValue, newValue);
+          value = _getValidRightValue(leftValue.toDouble(), newValue.toDouble());
           _changeController.add(value);
         }
       }
@@ -222,12 +221,12 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
     if (disabled) return;
     if (event.button != 0) return;
     event.preventDefault();
-    _setValueToMousePosition(event.page.x);
+    _setValueToMousePosition(event.page.x.toInt());
     isDragging = true;
     _changeDetector.markForCheck();
     final mouseMoveSubscription = document.onMouseMove.listen((event) {
       event.preventDefault();
-      _setValueToMousePosition(event.page.x);
+      _setValueToMousePosition(event.page.x.toInt());
     });
     document.onMouseUp.take(1).listen((event) {
       event.preventDefault();
@@ -243,14 +242,14 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   void touchStart(TouchEvent event) {
     if (disabled) return;
     event.preventDefault();
-    final touch = event.targetTouches.first;
-    _setValueToMousePosition(touch.page.x);
+    final touch = event.targetTouches!.first;
+    _setValueToMousePosition(touch.page.x.toInt());
     isDragging = true;
     _changeDetector.markForCheck();
     final touchMoveSubscription = document.onTouchMove.listen((event) {
       event.preventDefault();
-      final touch = event.targetTouches.first;
-      _setValueToMousePosition(touch.page.x);
+      final touch = event.targetTouches!.first;
+      _setValueToMousePosition(touch.page.x.toInt());
     });
     document.onTouchEnd.take(1).listen((event) {
       event.preventDefault();
@@ -289,11 +288,11 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
     }
     if (isLeftKnobPressed) {
       if (newValue != leftValue) {
-        leftValue = _getValidLeftValue(value, newValue);
+        leftValue = _getValidLeftValue(value.toDouble(), newValue.toDouble()).toInt();
         _leftChangeController.add(leftValue);
       }
     } else if (newValue != value) {
-      value = _getValidRightValue(leftValue, newValue);
+      value = _getValidRightValue(leftValue.toDouble(), newValue.toDouble());
       _changeController.add(value);
     }
   }

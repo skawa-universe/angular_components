@@ -20,17 +20,17 @@ import 'package:angular_components/src/laminate/popup/popup_size_provider.dart';
   ],
 )
 class PopupSizeProviderDirective implements PopupSizeProvider {
-  _SizeDefinition _minHeight;
-  _SizeDefinition _minWidth;
-  _SizeDefinition _maxHeight;
-  _SizeDefinition _maxWidth;
-  PopupSizeProvider _parentPopupSizeProvider;
+  _SizeDefinition? _minHeight;
+  _SizeDefinition? _minWidth;
+  _SizeDefinition? _maxHeight;
+  _SizeDefinition? _maxWidth;
+  PopupSizeProvider? _parentPopupSizeProvider;
 
   PopupSizeProviderDirective(
-      @Attribute('popupMinHeight') String minHeight,
-      @Attribute('popupMinWidth') String minWidth,
-      @Attribute('popupMaxHeight') String maxHeight,
-      @Attribute('popupMaxWidth') String maxWidth,
+      @Attribute('popupMinHeight') String? minHeight,
+      @Attribute('popupMinWidth') String? minWidth,
+      @Attribute('popupMaxHeight') String? maxHeight,
+      @Attribute('popupMaxWidth') String? maxWidth,
       @Optional() @SkipSelf() this._parentPopupSizeProvider) {
     _minHeight =
         minHeight == null ? null : _SizeDefinition.fromString(minHeight);
@@ -51,24 +51,24 @@ class PopupSizeProviderDirective implements PopupSizeProvider {
   }
 
   @override
-  num getMinWidth(num positionX, num viewportWidth) => _minWidth == null
-      ? _parentPopupSizeProvider.getMinWidth(positionX, viewportWidth)
-      : _minWidth.getPixels(viewportWidth);
+  num? getMinWidth(num positionX, num viewportWidth) => _minWidth == null
+      ? _parentPopupSizeProvider!.getMinWidth(positionX, viewportWidth)
+      : _minWidth!.getPixels(viewportWidth);
 
   @override
-  num getMinHeight(num positionY, num viewportHeight) => _minHeight == null
-      ? _parentPopupSizeProvider.getMinHeight(positionY, viewportHeight)
-      : _minHeight.getPixels(viewportHeight);
+  num? getMinHeight(num positionY, num viewportHeight) => _minHeight == null
+      ? _parentPopupSizeProvider!.getMinHeight(positionY, viewportHeight)
+      : _minHeight!.getPixels(viewportHeight);
 
   @override
-  num getMaxWidth(num positionX, num viewportWidth) => _maxWidth == null
-      ? _parentPopupSizeProvider.getMaxWidth(positionX, viewportWidth)
-      : _maxWidth.getPixels(viewportWidth);
+  num? getMaxWidth(num positionX, num viewportWidth) => _maxWidth == null
+      ? _parentPopupSizeProvider!.getMaxWidth(positionX, viewportWidth)
+      : _maxWidth!.getPixels(viewportWidth);
 
   @override
-  num getMaxHeight(num positionY, num viewportHeight) => _maxHeight == null
-      ? _parentPopupSizeProvider.getMaxHeight(positionY, viewportHeight)
-      : _maxHeight.getPixels(viewportHeight);
+  num? getMaxHeight(num positionY, num viewportHeight) => _maxHeight == null
+      ? _parentPopupSizeProvider!.getMaxHeight(positionY, viewportHeight)
+      : _maxHeight!.getPixels(viewportHeight);
 }
 
 /// Defines a size in any unit and computes in pixels.
@@ -81,8 +81,8 @@ abstract class _SizeDefinition {
   factory _SizeDefinition.fromString(String attribute) {
     var match = _parseAttribute.firstMatch(attribute);
     if (match == null) throw StateError('Invalid size string: $attribute');
-    num size = num.parse(match.group(1));
-    var unit = match.group(2).toLowerCase();
+    num size = num.parse(match.group(1)!);
+    var unit = match.group(2)!.toLowerCase();
     switch (unit) {
       case 'px':
         return _PixelSizeDefinition(size);

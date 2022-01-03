@@ -51,23 +51,22 @@ class MaterialSelectComponent<T> extends MaterialSelectBase<T>
   @HostBinding('attr.role')
   static const hostRole = 'listbox';
 
-  List<SelectionItem<T>> _selectItems;
+  List<SelectionItem<T>>? _selectItems;
 
   /// Function for use by NgFor for optionGroup to avoid recreating the
   /// DOM for the optionGroup.
-  final Function trackByIndexFn = indexIdentityFn;
+  final TrackByFn trackByIndexFn = indexIdentityFn;
 
   bool _listAutoFocus = false;
-  int _autoFocusIndex;
+  late int _autoFocusIndex;
 
   @HostBinding('attr.aria-multiselectable')
-  @override
-  bool get isMultiSelect => super.isMultiSelect;
+  String get isMultiSelectStr => isMultiSelect.toString();
 
   /// The [SelectionOptions] instance providing options to render.
   @Input()
   @override
-  set options(SelectionOptions<T> value) {
+  set options(SelectionOptions<T>? value) {
     super.options = value;
   }
 
@@ -80,37 +79,30 @@ class MaterialSelectComponent<T> extends MaterialSelectBase<T>
 
   /// The label which will be set to select group's aria-labelledby.
   @Input()
-  String ariaLabelledBy;
+  String? ariaLabelledBy;
 
   /// The description which will be set to select groups' aria-describedby.
   @Input()
-  String ariaDescribedBy;
-
-  @Deprecated('Use factoryRenderer instead it is more tree-shakable')
-  @Input()
-  @override
-  set componentRenderer(ComponentRenderer value) {
-    super.componentRenderer = value;
-  }
+  String? ariaDescribedBy;
 
   /// Used to create a [ComponentFactory] that must override [RendersValue]
   /// from a given option allowing for a more expressive option.
   @Input()
   @override
-  set factoryRenderer(FactoryRenderer<RendersValue, T> value) {
+  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) {
     super.factoryRenderer = value;
   }
 
   /// The [SelectionModel] for this container.
   @Input()
   @override
-  set selection(SelectionModel<T> value) {
+  set selection(SelectionModel<T>? value) {
     super.selection = value;
     _refreshItems();
   }
 
   @override
-  SelectionModel<T> get selection => super.selection;
+  SelectionModel<T>? get selection => super.selection;
 
   /// If selectionOptions implements Selectable, it is called to decided
   /// whether an item is disabled.
@@ -133,13 +125,13 @@ class MaterialSelectComponent<T> extends MaterialSelectBase<T>
   String get disabledStr => '$disabled';
 
   @override
-  ItemRenderer<T> get itemRenderer => _itemRenderer;
-  ItemRenderer<T> _itemRenderer;
+  ItemRenderer<T>? get itemRenderer => _itemRenderer;
+  ItemRenderer<T>? _itemRenderer;
 
   /// A rendering function to render selection options to a String, if given a
   /// `value`.
   @Input()
-  set itemRenderer(ItemRenderer<T> renderer) {
+  set itemRenderer(ItemRenderer<T>? renderer) {
     _itemRenderer = renderer;
     _refreshItems();
   }
@@ -157,7 +149,7 @@ class MaterialSelectComponent<T> extends MaterialSelectBase<T>
   int get autoFocusIndex => _autoFocusIndex;
 
   @ContentChildren(SelectionItem)
-  set selectItems(List<SelectionItem<T>> value) {
+  set selectItems(List<SelectionItem<T>>? value) {
     if (value != null) {
       // ContentChildren call is inside change detection. We can't alter
       // state inside change detector therefore schedule a microtask.
@@ -171,21 +163,21 @@ class MaterialSelectComponent<T> extends MaterialSelectBase<T>
   @override
   void ngOnInit() {
     if (!_listAutoFocus || options == null) return;
-    _autoFocusIndex = selection.isNotEmpty
-        ? options.optionsList.indexOf(selection.selectedValues.first)
+    _autoFocusIndex = selection!.isNotEmpty
+        ? options!.optionsList.indexOf(selection!.selectedValues.first)
         : 0;
   }
 
   void _refreshItems() {
     if (_selectItems == null) return;
     if (selection != null) {
-      for (SelectionItem<T> item in _selectItems) {
-        item.selection = selection;
+      for (SelectionItem<T> item in _selectItems!) {
+        item.selection = selection!;
       }
     }
     if (itemRenderer != null) {
-      for (SelectionItem<T> item in _selectItems) {
-        item.itemRenderer = itemRenderer;
+      for (SelectionItem<T> item in _selectItems!) {
+        item.itemRenderer = itemRenderer!;
       }
     }
   }

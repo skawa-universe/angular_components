@@ -46,32 +46,32 @@ abstract class Ruler<E> {
   ///
   /// **NOTE**: All of these properties are *cleared* before updating.
   Future<void> update(E element,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true});
 
   /// Updates position and dimension based properties on [element].
   ///
   /// **NOTE**: All of these properties are *cleared* before updating.
   void updateSync(E element,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true});
 }
 
@@ -124,8 +124,8 @@ abstract class RulerBase<E> implements Ruler<E> {
 
   @override
   Stream<Rectangle> track(E element) {
-    StreamController<Rectangle> controller;
-    StreamSubscription<dynamic> subscription;
+    late StreamController<Rectangle> controller;
+    late StreamSubscription<dynamic> subscription;
     controller = StreamController<Rectangle>(
         sync: true,
         onListen: () {
@@ -140,7 +140,7 @@ abstract class RulerBase<E> implements Ruler<E> {
         onCancel: () {
           subscription.cancel();
         });
-    return controller.stream.distinct((Rectangle previous, Rectangle next) {
+    return controller.stream.distinct((Rectangle? previous, Rectangle? next) {
       if (previous == null || next == null) return identical(previous, next);
 
       // We consider rectangles equal if their coordinates are within a
@@ -165,16 +165,16 @@ abstract class RulerBase<E> implements Ruler<E> {
 
   @override
   Future<void> update(E element,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true}) {
     void doSyncUpdate() {
       updateSync(element,
@@ -199,16 +199,16 @@ abstract class RulerBase<E> implements Ruler<E> {
   }
 
   void updateSync(E element,
-      {List<String> cssClasses,
-      Visibility visibility,
-      Position position,
-      num width,
-      num height,
-      num left,
-      num top,
-      num right,
-      num bottom,
-      num zIndex,
+      {List<String>? cssClasses,
+      Visibility? visibility,
+      Position? position,
+      num? width,
+      num? height,
+      num? left,
+      num? top,
+      num? right,
+      num? bottom,
+      num? zIndex,
       bool useCssTransform = true}) {
     // TODO(google): Consider another format for dimensions.
     SetPropertyFn setProperty = (name, value) {
@@ -221,7 +221,7 @@ abstract class RulerBase<E> implements Ruler<E> {
       visibility.apply(setProperty);
     }
     if (cssClasses != null) {
-      var lastCssClasses = _addedCssClasses[element];
+      var lastCssClasses = _addedCssClasses[element as Object];
       if (lastCssClasses != null) {
         removeCssClassesSync(element, lastCssClasses);
       }

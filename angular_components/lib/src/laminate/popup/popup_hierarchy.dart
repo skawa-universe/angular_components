@@ -5,42 +5,38 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:angular/angular.dart';
 import 'package:angular_components/laminate/overlay/constants.dart';
 import 'package:angular_components/utils/browser/events/events.dart' as events;
 
 /// Tracks a hierarchy of visible popup and provides it closing logic.
-@Injectable()
 class PopupHierarchy {
-  final _visiblePopupStack = <PopupHierarchyElement>[];
+  final _visiblePopupStack = <PopupHierarchyElement?>[];
 
   /// Parent pane of the first popup hierarchy element.
-  Element _rootPane;
+  Element? _rootPane;
 
-  StreamSubscription<Event> _triggerListener;
-  StreamSubscription<Event> _keyUpListener;
+  StreamSubscription<Event>? _triggerListener;
+  StreamSubscription<Event>? _keyUpListener;
 
-  Event _lastTriggerEvent;
+  Event? _lastTriggerEvent;
 
   /// Whether last trigger event is a keyboard event or focus event.
-  bool get islastTriggerWithKeyboard =>
-      _lastTriggerEvent is KeyboardEvent || _lastTriggerEvent is FocusEvent;
+  bool get islastTriggerWithKeyboard => _lastTriggerEvent is KeyboardEvent || _lastTriggerEvent is FocusEvent;
 
   /// Closes every popup element present in the hierarchy.
   void closeHierarchy() {
     for (var popup in _visiblePopupStack) {
-      popup.onDismiss();
+      popup!.onDismiss();
     }
 
     _visiblePopupStack.clear();
     _disposeListeners();
   }
 
-  void _attach(PopupHierarchyElement child) {
+  void _attach(PopupHierarchyElement? child) {
     assert(child != null);
     if (_visiblePopupStack.isEmpty) {
-      _rootPane =
-          events.closestWithClass(child.elementRef.nativeElement, 'pane');
+      _rootPane = events.closestWithClass(child!.elementRef, 'pane');
     }
     _visiblePopupStack.add(child);
 
@@ -54,8 +50,8 @@ class PopupHierarchy {
   }
 
   void _disposeListeners() {
-    _triggerListener.cancel();
-    _keyUpListener.cancel();
+    _triggerListener!.cancel();
+    _keyUpListener!.cancel();
     _triggerListener = null;
     _keyUpListener = null;
   }
@@ -72,23 +68,21 @@ class PopupHierarchy {
     // created by another app using ACX.
     // TODO(google): Find a way to compute it only when needed and make it
     // globally accessible.
-    var modalPanes = document
-        .querySelectorAll('.$overlayContainerClassName .pane.modal.visible');
+    var modalPanes = document.querySelectorAll('.$overlayContainerClassName .pane.modal.visible');
     if (modalPanes.isNotEmpty) {
       // Only close popups that belong to the currently visible modal or whose
       // modal is no longer visible. Note that since the modal may already
       // have closed prior to this event being processed, it's possible in
       // some situations that the popups of the level below will be closed as
       // well.
-      if (_rootPane == null ||
-          (_rootPane != modalPanes.last && modalPanes.contains(_rootPane))) {
+      if (_rootPane == null || (_rootPane != modalPanes.last && modalPanes.contains(_rootPane))) {
         return true;
       }
     }
     return false;
   }
 
-  void _onTrigger(Event event) {
+  void _onTrigger(Event? event) {
     // Some weird event, ignore it.
     if (event?.target == null) return;
 
@@ -100,17 +94,17 @@ class PopupHierarchy {
       final current = _visiblePopupStack[i];
       if (current?.container == null) continue;
 
-      if (events.isParentOf(current.container, event.target)) return;
+      if (events.isParentOf(current!.container!, event!.target as Node?)) return;
 
       for (var blockerElement in current.autoDismissBlockers) {
-        if (events.isParentOf(blockerElement, event.target)) return;
+        if (events.isParentOf(blockerElement, event.target as Node?)) return;
       }
 
       if (current.autoDismiss) current.onAutoDismiss(event);
     }
   }
 
-  void _onKeyUp(KeyboardEvent event) {
+  void _onKeyUp(KeyboardEvent? event) {
     // Some weird event, ignore it.
     if (event?.target == null) return;
 
@@ -118,19 +112,19 @@ class PopupHierarchy {
 
     if (_isInHiddenModal()) return;
 
-    if (event.keyCode == KeyCode.ESC) {
+    if (event!.keyCode == KeyCode.ESC) {
       for (int i = _visiblePopupStack.length - 1; i >= 0; i--) {
         final current = _visiblePopupStack[i];
         if (current?.container == null) continue;
 
-        if (events.isParentOf(current.container, event.target)) {
+        if (events.isParentOf(current!.container!, event.target as Node?)) {
           event.stopPropagation();
           current.onDismiss();
           return;
         }
 
         for (var blockerElement in current.autoDismissBlockers) {
-          if (events.isParentOf(blockerElement, event.target)) {
+          if (events.isParentOf(blockerElement, event.target as Node?)) {
             event.stopPropagation();
             current.onDismiss();
             return;
@@ -144,12 +138,13 @@ class PopupHierarchy {
 /// An electable element for the [PopupHierarchy].
 abstract class PopupHierarchyElement {
   PopupHierarchy get hierarchy;
+
   bool get autoDismiss;
 
   /// The html element corresponding to the popup.
-  Element get container;
+  Element? get container;
 
-  ElementRef get elementRef => null;
+  HtmlElement? get elementRef => null;
 
   /// The outer element which should prevent the auto dismiss logic.
   List<Element> get autoDismissBlockers;
@@ -165,7 +160,7 @@ abstract class PopupHierarchyElement {
     hierarchy._detach(this);
   }
 
-  void onAutoDismiss(Event event) {
+  void onAutoDismiss(Event? event) {
     onDismiss();
   }
 

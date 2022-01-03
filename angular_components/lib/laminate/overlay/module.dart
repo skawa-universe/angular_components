@@ -5,7 +5,6 @@
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:meta/meta.dart';
 import 'package:angular_components/laminate/overlay/constants.dart';
 import 'package:angular_components/src/laminate/overlay/overlay_service.dart';
 import 'package:angular_components/src/laminate/overlay/render/overlay_dom_render_service.dart';
@@ -32,7 +31,7 @@ export 'package:angular_components/src/laminate/overlay/render/overlay_dom_rende
 /// A hidden focusable element is inserted before and after the overlay
 /// container to support a11y features.
 HtmlElement createAcxOverlayContainer(HtmlElement parent,
-    {@required String id, @required String name, String className}) {
+    {required String id, required String name, String? className}) {
   var container = parent.querySelector('#$id');
   if (container == null) {
     container = DivElement()
@@ -42,38 +41,32 @@ HtmlElement createAcxOverlayContainer(HtmlElement parent,
     parent.append(container);
   }
   container.attributes[overlayContainerNameAttribute] = name;
-  return container;
+  return container as HtmlElement;
 }
 
 /// Either finds, or creates an "acx-overlay-container" div at the end of body.
-@Injectable()
 HtmlElement getDefaultContainer(
     @Inject(overlayContainerName) String name,
     @Inject(overlayContainerParent) HtmlElement parent,
     @Optional() @SkipSelf() @Inject(overlayContainerToken) container) {
   if (container != null) return container;
-  return createAcxOverlayContainer(parent,
-      id: overlayDefaultContainerId, name: name);
+  return createAcxOverlayContainer(parent, id: overlayDefaultContainerId, name: name);
 }
 
-@Injectable()
-String getDefaultContainerName(
-    @Optional() @SkipSelf() @Inject(overlayContainerName) containerName) {
+String getDefaultContainerName(@Optional() @SkipSelf() @Inject(overlayContainerName) containerName) {
   return containerName ?? 'default';
 }
 
 /// Returns an overlay container with debugging aid enabled.
-@Injectable()
-HtmlElement getDebugContainer(@Inject(overlayContainerName) String name,
-    @Inject(overlayContainerParent) HtmlElement parent) {
+HtmlElement getDebugContainer(
+    @Inject(overlayContainerName) String name, @Inject(overlayContainerParent) HtmlElement parent) {
   var element = getDefaultContainer(name, parent, null);
   element.classes.add('debug');
   return element;
 }
 
-@Injectable()
-HtmlElement getOverlayContainerParent(Document document,
-    @Optional() @SkipSelf() @Inject(overlayContainerParent) containerParent) {
+HtmlElement getOverlayContainerParent(
+    Document document, @Optional() @SkipSelf() @Inject(overlayContainerParent) containerParent) {
   return containerParent ?? document.querySelector('body');
 }
 
@@ -91,7 +84,7 @@ const _overlayProviders = <Provider>[
   domServiceBinding,
   ClassProvider(ManagedZone, useClass: Angular2ManagedZone),
   FactoryProvider.forToken(overlayContainerName, getDefaultContainerName),
-  FactoryProvider.forToken(overlayContainerToken, getDefaultContainer),
+  FactoryProvider<HtmlElement>.forToken(overlayContainerToken, getDefaultContainer),
   FactoryProvider.forToken(overlayContainerParent, getOverlayContainerParent),
   // Applications may experimentally make this true to increase performance.
   ValueProvider.forToken(overlaySyncDom, true),

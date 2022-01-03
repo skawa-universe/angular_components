@@ -71,10 +71,10 @@ class MaterialTreeDropdownComponent<T>
   bool _expandAll = false;
   String _placeholder = _DEFAULT_PLACEHOLDER;
   bool _visible = false;
-  List<RelativePosition> _customPopupPositions;
+  List? _customPopupPositions;
 
   @ViewChild(MaterialTreeFilterComponent)
-  MaterialTreeFilterComponent materialTreeFilterComponent;
+  MaterialTreeFilterComponent? materialTreeFilterComponent;
 
   /// Fired when the dropdown's visibility changes.
   @Output()
@@ -119,7 +119,7 @@ class MaterialTreeDropdownComponent<T>
   /// Function to convert the selected value to a string to be displayed as the
   /// button text.
   @Input()
-  ItemRenderer labelRenderer;
+  ItemRenderer? labelRenderer;
 
   bool get showFilterInsideButton =>
       supportsFiltering && !showFilterInsidePopup;
@@ -139,9 +139,9 @@ class MaterialTreeDropdownComponent<T>
   /// render the selected value with [labelRenderer], [itemRenderer], or
   /// [defaultItemRenderer] in that order of preference.
   String get placeholder {
-    if (selection is! MultiSelectionModel && selection.isNotEmpty) {
+    if (selection is! MultiSelectionModel && selection!.isNotEmpty) {
       return (labelRenderer ?? (itemRenderer ?? defaultItemRenderer))(
-          selection.selectedValues.first);
+          selection!.selectedValues.first);
     }
     return _placeholder;
   }
@@ -150,50 +150,43 @@ class MaterialTreeDropdownComponent<T>
   final bool optimizeForDropdown = true;
 
   MaterialTreeDropdownComponent(this._domService,
-      @Attribute('popupClass') String popupClass, HtmlElement element)
+      @Attribute('popupClass') String? popupClass, HtmlElement element)
       : popupClassName = constructEncapsulatedCss(popupClass, element.classes) {
     selection = SelectionModel<T>.empty();
-  }
-
-  @Deprecated('Use [factoryRenderer] instead')
-  @Input()
-  @override
-  set componentRenderer(ComponentRenderer value) {
-    super.componentRenderer = value;
   }
 
   /// Specifies the factoryRenderer to use to determine the factory for
   /// rendering an item.
   @Input()
   @override
-  set factoryRenderer(FactoryRenderer<RendersValue, T> value) {
+  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) {
     super.factoryRenderer = value;
   }
 
   /// A simple function to render the item to string.
   @Input()
   @override
-  set itemRenderer(ItemRenderer<T> value) {
+  set itemRenderer(ItemRenderer<T>? value) {
     super.itemRenderer = value;
   }
 
   /// The available options for this contianer.
   @Input()
   @override
-  set options(SelectionOptions<T> value) {
+  set options(SelectionOptions<T>? value) {
     super.options = value;
   }
 
   /// The selection model this container represents.
   @Input()
   @override
-  set selection(SelectionModel<T> value) {
+  set selection(SelectionModel<T>? value) {
     super.selection = value;
   }
 
   /// Placeholder to be used for the dropdown text when nothing is selected.
   @Input()
-  set placeholder(String placeholder) {
+  set placeholder(String? placeholder) {
     _placeholder = placeholder ?? _DEFAULT_PLACEHOLDER;
   }
 
@@ -202,7 +195,7 @@ class MaterialTreeDropdownComponent<T>
   /// If left unset or if explicitly set to null, [_defaultPopupPositions] will
   /// be used. See [MaterialPopupComponent] for more information.
   @Input()
-  set popupPositions(List<RelativePosition> positions) {
+  set popupPositions(List positions) {
     _customPopupPositions = positions;
   }
 

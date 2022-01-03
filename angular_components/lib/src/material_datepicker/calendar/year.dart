@@ -18,11 +18,10 @@ class CalendarYear extends _HasHighlights {
 
   final Date _start;
   final int startingWeekday;
-  String _title;
-  List<CalendarMonth> _months;
+  late String _title;
+  late List<CalendarMonth> _months;
 
-  CalendarYear(int year, CalendarState state,
-      {this.startingWeekday = DateTime.monday})
+  CalendarYear(int year, CalendarState? state, {this.startingWeekday = DateTime.monday})
       : _start = Date(year),
         super(state) {
     _title = _start.format(DateFormat.y());
@@ -34,17 +33,18 @@ class CalendarYear extends _HasHighlights {
     _updateHighlights();
   }
 
-  CalendarYear.fromDate(Date date,
-      {CalendarState state, int startingWeekday = DateTime.monday})
+  CalendarYear.fromDate(Date date, {CalendarState? state, int startingWeekday = DateTime.monday})
       : this(date.year, state, startingWeekday: startingWeekday);
 
-  CalendarYear.fromTime(DateTime time,
-      {CalendarState state, int startingWeekday = DateTime.monday})
+  CalendarYear.fromTime(DateTime time, {CalendarState? state, int startingWeekday = DateTime.monday})
       : this(time.year, state, startingWeekday: startingWeekday);
 
   Date get start => _start;
+
   int get year => _start.year;
+
   String get title => _title;
+
   List<CalendarMonth> get months => _months;
 
   @override
@@ -72,22 +72,15 @@ class CalendarYear extends _HasHighlights {
   @override
   Iterable<Highlight> _mergedHighlights() sync* {
     for (var highlight in super._mergedHighlights()) {
-      if (_isMonthInRow(highlight.start, 0) &&
-          _isMonthInRow(highlight.end, 1)) {
-        yield Highlight(
-            highlight.start, _afterFirstRow, highlight.containedRanges,
-            group: 0);
-        yield Highlight(
-            _beforeSecondRow, highlight.end, highlight.containedRanges,
+      if (_isMonthInRow(highlight.start, 0) && _isMonthInRow(highlight.end, 1)) {
+        yield Highlight(highlight.start, _afterFirstRow, highlight.containedRanges, group: 0);
+        yield Highlight(_beforeSecondRow, highlight.end, highlight.containedRanges,
             classIndexOffset: -_monthsPerRow, group: 1);
       } else if (_isMonthInRow(highlight.start, 1)) {
-        yield Highlight(
-            highlight.start, highlight.end, highlight.containedRanges,
+        yield Highlight(highlight.start, highlight.end, highlight.containedRanges,
             classIndexOffset: -_monthsPerRow, group: 1);
       } else {
-        yield Highlight(
-            highlight.start, highlight.end, highlight.containedRanges,
-            group: 0);
+        yield Highlight(highlight.start, highlight.end, highlight.containedRanges, group: 0);
       }
     }
   }
@@ -111,8 +104,7 @@ class CalendarYear extends _HasHighlights {
     yield Highlight(lastPos, 13, _matching(last, _start.add(months: 12)));
   }
 
-  Iterable<Date> _monthDates() =>
-      Iterable.generate(12, (offset) => _start.add(months: offset));
+  Iterable<Date> _monthDates() => Iterable.generate(12, (offset) => _start.add(months: offset));
 
   Iterable<CalendarMonth> monthsInRow(int row) {
     return months.where((m) => _isMonthInRow(m.month, row));
@@ -122,11 +114,9 @@ class CalendarYear extends _HasHighlights {
   ///
   ///     <2015>.addYears(4) --> 2019
   ///     <2015>.addYears(-3) --> 2012
-  CalendarYear addYears(int years) =>
-      CalendarYear(year + years, _state, startingWeekday: startingWeekday);
+  CalendarYear addYears(int years) => CalendarYear(year + years, _state, startingWeekday: startingWeekday);
 
-  int getRowIndex(int month, {int monthsPerRow = 4}) =>
-      ((month - 1) / monthsPerRow).round();
+  int getRowIndex(int month, {int monthsPerRow = 4}) => ((month - 1) / monthsPerRow).round();
 
   CalendarYear get next => addYears(1);
 
@@ -136,8 +126,7 @@ class CalendarYear extends _HasHighlights {
   int deltaYears(CalendarYear other) => other.year - year;
 
   Iterable<CalendarMonth> _generateMonths() sync* {
-    var month = CalendarMonth(year, DateTime.january,
-        state: _state, startingWeekday: startingWeekday);
+    CalendarMonth? month = CalendarMonth(year, DateTime.january, state: _state, startingWeekday: startingWeekday);
     while (month != null) {
       yield month;
       month = month.next;
@@ -178,8 +167,7 @@ class YearRange {
   /// max is before min.
   ///
   /// - `length: int` -- Must be at least 1.
-  factory YearRange.within(CalendarYear min, CalendarYear max, int length,
-      {final CalendarYear tryToStartAt}) {
+  factory YearRange.within(CalendarYear? min, CalendarYear? max, int length, {final CalendarYear? tryToStartAt}) {
     if (length < 1) {
       throw ArgumentError.value(length, 'length', 'must be at least 1');
     }
@@ -220,8 +208,7 @@ class YearRange {
   /// The first entry will have the same year as [startDate]. All
   /// entries will have the specified [state] and [startingWeekday].
   List<CalendarYear> toList(CalendarState state, int startingWeekday) {
-    var startYear =
-        CalendarYear(start.year, state, startingWeekday: startingWeekday);
+    var startYear = CalendarYear(start.year, state, startingWeekday: startingWeekday);
     return List.generate(length, (i) => startYear.addYears(i));
   }
 }

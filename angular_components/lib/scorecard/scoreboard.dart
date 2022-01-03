@@ -47,34 +47,36 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   final _cardSelectionDisposer = Disposer.multi();
   final ChangeDetectorRef _changeDetector;
   final DomService _domService;
-  SelectionModel _selectionModel;
-  List<ScorecardComponent> _scorecards;
-  ScorecardBarDirective _scorecardBar;
+  late SelectionModel _selectionModel;
+  late List<ScorecardComponent> _scorecards;
+  ScorecardBarDirective? _scorecardBar;
   String chevronBack = chevronLeft;
   String chevronForward = chevronRight;
 
   /// Whether to allow for uniform widths on scorecards.
-  bool _enableUniformWidths;
+  late bool _enableUniformWidths;
   bool _initialized = false;
 
   bool get isScrollable => scrollable && (_scorecardBar?.isScrollable ?? false);
   bool _atScorecardBarStart = false;
+
   bool get atScorecardBarStart => _atScorecardBarStart;
   bool _atScorecardBarEnd = false;
+
   bool get atScorecardBarEnd => _atScorecardBarEnd;
+
   String get backIconType => isVertical ? 'expand_less' : chevronBack;
+
   String get forwardIconType => isVertical ? 'expand_more' : chevronForward;
 
   ScoreboardComponent(
-      @Attribute('enableUniformWidths') String enableUniformWidths,
-      this._domService,
-      this._changeDetector) {
+      @Attribute('enableUniformWidths') String? enableUniformWidths, this._domService, this._changeDetector) {
     _enableUniformWidths = enableUniformWidths != 'false'; // Defaults to true
   }
 
   @ContentChildren(ScorecardComponent)
-  set scoreCards(List<ScorecardComponent> value) {
-    _scorecards = value;
+  set scoreCards(List<ScorecardComponent>? value) {
+    _scorecards = value!;
     // TODO(google): Remove if setting of content children occur after
     // child is initialized.
     if (_initialized) scheduleMicrotask(_onScorecardsChange);
@@ -108,15 +110,14 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild(ScorecardBarDirective)
-  set scorecardBar(ScorecardBarDirective value) {
+  set scorecardBar(ScorecardBarDirective? value) {
     _scorecardBar = value;
-    _disposer.addDisposable(
-        _scorecardBar.refreshStream.listen((_) => _refreshArrows()));
+    _disposer.addDisposable(_scorecardBar!.refreshStream.listen((_) => _refreshArrows()));
   }
 
   /// Type of scoreboard, e.g., standard, selectable, radio, toggle.
   @Input()
-  ScoreboardType type = ScoreboardType.standard;
+  ScoreboardType? type = ScoreboardType.standard;
 
   /// Whether allow scrolling the scoreboard via scroll buttons.
   ///
@@ -138,12 +139,12 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   bool isVertical = false;
 
   void scrollBack() {
-    _scorecardBar.scrollBack();
+    _scorecardBar!.scrollBack();
     _resetTabIndex();
   }
 
   void scrollForward() {
-    _scorecardBar.scrollForward();
+    _scorecardBar!.scrollForward();
     _resetTabIndex();
   }
 
@@ -179,12 +180,9 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   void _resetTabIndex() {
     for (ScorecardComponent component in _scorecards) {
       var offset = _scorecardOffset(component.element);
-      var scorecardBarEndPosition = _scorecardBar.currentTransformSize +
-          _scorecardBar.currentClientSize -
-          _scorecardBar.currentButtonSize;
-      if (offset < scorecardBarEndPosition &&
-          offset > _scorecardBar.currentTransformSize &&
-          component.selectable) {
+      var scorecardBarEndPosition =
+          _scorecardBar!.currentTransformSize + _scorecardBar!.currentClientSize - _scorecardBar!.currentButtonSize;
+      if (offset < scorecardBarEndPosition && offset > _scorecardBar!.currentTransformSize && component.selectable) {
         component.element.tabIndex = 0;
       } else {
         component.element.tabIndex = -1;
@@ -201,24 +199,19 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   /// the scorecard without affecting the transform. This is not the case for
   /// vertical score cards, therefore we need to look for the bottom.
   int _scorecardOffset(HtmlElement element) {
-    return isVertical
-        ? element.offsetTop + element.offsetHeight
-        : element.offsetLeft;
+    return isVertical ? element.offsetTop + element.offsetHeight : element.offsetLeft;
   }
 
   void _onScorecardsChange() {
     _cardSelectionDisposer.dispose();
     if (_enableUniformWidths) _makeScorecardsUniformWidth();
     for (ScorecardComponent scorecard in _scorecards) {
-      scorecard.selectable = type == ScoreboardType.custom
-          ? scorecard.selectable
-          : type != ScoreboardType.standard;
+      scorecard.selectable = type == ScoreboardType.custom ? scorecard.selectable : type != ScoreboardType.standard;
       // Select for initial scorecards selection on page load.
       if (!resetOnCardChanges && scorecard.selected) {
         _selectionModel.select(scorecard);
       }
-      _cardSelectionDisposer.addDisposable(
-          scorecard.selectedChange.listen((_) => selectionChange(scorecard)));
+      _cardSelectionDisposer.addDisposable(scorecard.selectedChange.listen((_) => selectionChange(scorecard)));
     }
 
     if (resetOnCardChanges) _selectionModel.clear();
@@ -241,9 +234,7 @@ class ScoreboardComponent implements OnInit, OnDestroy {
   }
 
   void _makeScorecardsUniformWidth() {
-    List<HtmlElement> scorecardsElem = _scorecards
-        .map((ScorecardComponent scorecard) => scorecard.element)
-        .toList();
+    List<HtmlElement> scorecardsElem = _scorecards.map((ScorecardComponent scorecard) => scorecard.element).toList();
 
     var width = 0.0;
     // Reset CSS widths so scorecards shrink to their individual widths.
@@ -253,12 +244,8 @@ class ScoreboardComponent implements OnInit, OnDestroy {
       }
       _disposer.addDisposable(_domService.scheduleRead(() {
         for (var element in scorecardsElem) {
-          var elemWidth = element
-              .getComputedStyle()
-              .width
-              .replaceAll(RegExp('[^0-9.]'), '');
-          var elemWidthValue =
-              elemWidth.isEmpty ? 0.0 : double.parse(elemWidth);
+          var elemWidth = element.getComputedStyle().width.replaceAll(RegExp('[^0-9.]'), '');
+          var elemWidthValue = elemWidth.isEmpty ? 0.0 : double.parse(elemWidth);
           if (elemWidthValue > width) width = elemWidthValue;
         }
         // Add 1 pixel to handle approximation errors when resetting widths.
@@ -281,13 +268,11 @@ class ScoreboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  static final scrollScorecardBarForward = Intl.message(
-      'Scroll scorecard bar forward',
+  static final scrollScorecardBarForward = Intl.message('Scroll scorecard bar forward',
       desc: 'Aria label of a button that scrolls the scorecard bar horizontally'
           ' forward. Forward is, to the right in left-to-right layouts'
           ' and to the left in right-to-left layouts.');
-  static final scrollScorecardBarBack = Intl.message(
-      'Scroll scorecard bar backward',
+  static final scrollScorecardBarBack = Intl.message('Scroll scorecard bar backward',
       desc: 'Aria label of a button that scrolls the scorecard bar horizontally'
           ' backward. Backward is, to the left in left-to-right layouts'
           ' and to the right in right-to-left layouts.');

@@ -40,8 +40,7 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
   static const changeTypeNegative = 'NEGATIVE';
   static const changeTypeNeutral = 'NEUTRAL';
 
-  final StreamController<bool> _selectionController =
-      StreamController<bool>.broadcast(sync: true);
+  final StreamController<bool> _selectionController = StreamController<bool>.broadcast(sync: true);
 
   bool _isChangePositive = false;
   bool _isChangeNegative = false;
@@ -50,20 +49,20 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
 
   final ChangeDetectorRef _changeDetector;
   final HtmlElement element;
-  ScorecardComponent(this._changeDetector, this.element, DomService domService)
-      : super(element, domService);
+
+  ScorecardComponent(this._changeDetector, this.element, DomService domService) : super(element, domService);
 
   /// The title of the scorecard.
   @Input()
-  String label;
+  String? label;
 
   /// The value displayed to the user.
   @Input()
-  String value;
+  String? value;
 
   /// The value displayed in a tooltip when the users hovers over the value.
   @Input()
-  String tooltip;
+  String? tooltip;
 
   /// Whether to display a small change arrow glyph in the description;
   /// optional.
@@ -72,15 +71,15 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
 
   /// A piece of suggestion text before the description; optional.
   @Input()
-  String suggestionBefore;
+  String? suggestionBefore;
 
   /// Short description on the scorecard; optional.
   @Input()
-  String description;
+  String? description;
 
   /// A piece of suggestion text after the description; optional.
   @Input()
-  String suggestionAfter;
+  String? suggestionAfter;
 
   /// Whether to use the "big" class style for scorecards; optional.
   @HostBinding('class.extra-big')
@@ -94,7 +93,7 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
   /// * 'NEGATIVE'
   /// * 'NEUTRAL' (default)
   @Input()
-  set changeType(String changeType) {
+  set changeType(String? changeType) {
     // Reset the flags.
     _isChangePositive = _isChangeNegative = _isChangeNeutral = false;
     switch ((changeType ?? changeTypeNeutral).toUpperCase()) {
@@ -150,14 +149,14 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
   }
 
   @HostBinding('attr.tabindex')
-  int get hostTabIndex => selectable ? 0 : null;
+  String? get hostTabIndex => selectable ? "0" : null;
 
   @HostBinding('attr.role')
-  String get hostRole => selectable ? "button" : null;
+  String? get hostRole => selectable ? "button" : null;
 
   /// The [Color] to apply to the scorecard background when it is selected.
   @Input()
-  Color selectedColor;
+  Color? selectedColor;
 
   /// Fired when the selection state changes.
   @Output()
@@ -167,9 +166,7 @@ class ScorecardComponent extends KeyboardOnlyFocusIndicatorDirective {
   ///
   /// A [selected] and [selectable] scorecard uses [selectedColor].
   @HostBinding('style.background')
-  String get backgroundStyle => selected
-      ? selectedColor?.hexString ?? chartingPalette[0].hexString
-      : 'inherit';
+  String get backgroundStyle => selected ? selectedColor?.hexString ?? chartingPalette[0].hexString : 'inherit';
 
   @HostListener('click')
   void handleClick() {

@@ -5,15 +5,15 @@
 part of angular_components.model.selection.selection_options;
 
 class _StreamSelectionOptions<T> extends SelectionOptions<T> {
-  StreamSubscription _streamSub;
-  _StreamSelectionOptions(Stream<List<OptionGroup<T>>> optionGroupListStream)
-      : super([]) {
+  late StreamSubscription _streamSub;
+
+  _StreamSelectionOptions(Stream<List<OptionGroup<T>>> optionGroupListStream) : super([]) {
     _streamSub = optionGroupListStream.listen(_setOptions);
   }
 
   @override
   void dispose() {
-    _streamSub?.cancel();
+    _streamSub.cancel();
     super.dispose();
   }
 }

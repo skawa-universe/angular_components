@@ -32,9 +32,7 @@ import 'package:angular_components/utils/id_generator/id_generator.dart';
   directives: [FocusTrapComponent, NgIf],
   changeDetection: ChangeDetectionStrategy.OnPush,
 )
-class MaterialDialogComponent
-    with KeyboardHandlerMixin
-    implements AfterContentChecked, OnDestroy {
+class MaterialDialogComponent with KeyboardHandlerMixin implements AfterContentChecked, OnDestroy {
   @HostBinding('attr.role')
   static const hostRole = 'dialog';
 
@@ -42,24 +40,24 @@ class MaterialDialogComponent
   static const ariaModel = 'true';
 
   @HostBinding('attr.aria-labelledby')
-  String get headerId => shouldShowHeader ? _uid : null;
+  String? get headerId => shouldShowHeader ? _uid : null;
 
   final HtmlElement _rootElement;
   final DomService _domService;
   final ChangeDetectorRef _changeDetector;
   final NgZone _ngZone;
-  final ModalComponent _modal;
+  final ModalComponent? _modal;
   final _disposer = Disposer.oneShot();
   final _uid = SequentialIdGenerator.fromUUID().nextId();
 
-  HtmlElement _mainElement;
+  late HtmlElement _mainElement;
   bool _shouldShowHeader = true;
   bool _shouldShowFooter = true;
   bool shouldShowTopScrollStroke = false;
   bool shouldShowBottomScrollStroke = false;
 
   final _isInFullscreenModeStreamController = StreamController<bool>();
-  bool _isInFullscreenMode;
+  bool? _isInFullscreenMode;
   bool _shouldListenForFullscreenChanges = false;
 
   MaterialDialogComponent(
@@ -73,13 +71,13 @@ class MaterialDialogComponent
   }
 
   @ViewChild('main', read: HtmlElement)
-  set main(HtmlElement element) {
-    _mainElement = element;
+  set main(HtmlElement? element) {
+    _mainElement = element!;
     _disposer.addStreamSubscription(element.onScroll.listen((_) {
       _setHeaderFooterScrollBorder();
     }));
     if (_modal == null) return;
-    _disposer.addStreamSubscription(_modal.onOpen.listen((_) {
+    _disposer.addStreamSubscription(_modal!.onOpen.listen((_) {
       _setHeaderFooterScrollBorder();
     }));
   }
@@ -87,21 +85,19 @@ class MaterialDialogComponent
   /// Function to handle escape key events from the dialog. By default it tries
   /// to close the parent modal, if any.
   @Input()
-  KeyboardEventHandler escapeHandler;
+  KeyboardEventHandler? escapeHandler;
 
   /// Error to show up in the error section of the dialog.
   @Input()
-  String error;
+  String? error;
 
   /// Whether to hide the dialog header.
   @Input()
-  set hideHeader(bool shouldHideHeader) =>
-      _shouldShowHeader = !shouldHideHeader;
+  set hideHeader(bool shouldHideHeader) => _shouldShowHeader = !shouldHideHeader;
 
   /// Whether to hide the dialog footer.
   @Input()
-  set hideFooter(bool shouldHideFooter) =>
-      _shouldShowFooter = !shouldHideFooter;
+  set hideFooter(bool shouldHideFooter) => _shouldShowFooter = !shouldHideFooter;
 
   bool get shouldShowHeader => _shouldShowHeader;
 
@@ -116,12 +112,9 @@ class MaterialDialogComponent
   void _setHeaderFooterScrollBorder() {
     if (!shouldShowScrollStrokes) return;
     _disposer.addDisposable(_domService.scheduleRead(() {
-      var shouldShowTopScrollStroke =
-          _mainElement.scrollTop > 0 && error == null;
-      var shouldShowBottomScrollStroke =
-          _mainElement.clientHeight < _mainElement.scrollHeight &&
-              _mainElement.scrollTop <
-                  _mainElement.scrollHeight - _mainElement.clientHeight;
+      var shouldShowTopScrollStroke = _mainElement.scrollTop > 0 && error == null;
+      var shouldShowBottomScrollStroke = _mainElement.clientHeight < _mainElement.scrollHeight &&
+          _mainElement.scrollTop < _mainElement.scrollHeight - _mainElement.clientHeight;
       if (shouldShowTopScrollStroke != this.shouldShowTopScrollStroke ||
           shouldShowBottomScrollStroke != this.shouldShowBottomScrollStroke) {
         this.shouldShowTopScrollStroke = shouldShowTopScrollStroke;
@@ -153,19 +146,16 @@ class MaterialDialogComponent
 
   /// Stream for when the dialog enters or exits fullscreen mode.
   @Output('fullscreenMode')
-  Stream<bool> get isInFullscreenMode =>
-      _isInFullscreenModeStreamController.stream;
+  Stream<bool> get isInFullscreenMode => _isInFullscreenModeStreamController.stream;
 
   void _listenForFullscreenChanges() {
     if (!_shouldListenForFullscreenChanges) return;
-    _disposer.addDisposable(
-        _domService.scheduleRead(_updateForFullscreenChangesInsideDomReadLoop));
+    _disposer.addDisposable(_domService.scheduleRead(_updateForFullscreenChangesInsideDomReadLoop));
   }
 
   void _updateForFullscreenChangesInsideDomReadLoop() {
-    final isInFullscreenMode =
-        document.body.clientWidth <= _rootElement.clientWidth &&
-            document.body.clientHeight <= _rootElement.clientHeight;
+    final isInFullscreenMode = document.body!.clientWidth <= _rootElement.clientWidth &&
+        document.body!.clientHeight <= _rootElement.clientHeight;
     if (_isInFullscreenMode != isInFullscreenMode) {
       _isInFullscreenMode = isInFullscreenMode;
       _isInFullscreenModeStreamController.add(isInFullscreenMode);
@@ -175,14 +165,14 @@ class MaterialDialogComponent
   @override
   void handleEscapeKey(KeyboardEvent event) {
     if (escapeHandler != null) {
-      escapeHandler(event);
+      escapeHandler!(event);
     }
   }
 
   void _defaultEscapeHandler(KeyboardEvent event) {
     if (_modal != null) {
       event.preventDefault();
-      _modal.close();
+      _modal!.close();
     }
   }
 

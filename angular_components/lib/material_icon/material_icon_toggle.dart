@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 
 import 'material_icon.dart';
 
@@ -23,9 +22,9 @@ import 'material_icon.dart';
 class MaterialIconToggleDirective implements AfterChanges {
   MaterialIconComponent iconRef;
   final ChangeDetectorRef _cdRef;
-  bool _showToggled;
-  bool _showBasic;
-  bool _hideIcon;
+  late bool _showToggled;
+  late bool _showBasic;
+  late bool _hideIcon;
 
   MaterialIconToggleDirective(this._cdRef, this.iconRef);
 
@@ -48,7 +47,7 @@ class MaterialIconToggleDirective implements AfterChanges {
   ///
   /// The [toggledIcon] is displayed when true.
   @Input()
-  bool toggle;
+  bool toggle = false;
 
   @override
   ngAfterChanges() {

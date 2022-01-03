@@ -76,7 +76,7 @@ class TextHighlighter {
         if (index == -1) {
           break;
         } else {
-          String wrapperToken = index != 0 ? _matchText[index - 1] : null;
+          String? wrapperToken = index != 0 ? _matchText[index - 1] : null;
           if (!matchFromStartOfWord ||
               (index == 0 ||
                   // Some suggestions will have an alternate label appended to
@@ -102,7 +102,7 @@ class TextHighlighter {
     var segments = <HighlightedTextSegment>[];
     var currentSegment = StringBuffer();
 
-    void commitSegment({@required bool highlight}) {
+    void commitSegment({required bool highlight}) {
       if (currentSegment.isEmpty) return;
       segments
           .add(HighlightedTextSegment(currentSegment.toString(), highlight));

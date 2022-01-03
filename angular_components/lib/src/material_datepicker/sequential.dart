@@ -17,8 +17,8 @@ abstract class Sequential<T> {
   ObservableView<bool> get hasPrev;
 
   /// Tries to advance to the next item, and returns it if possible.
-  T next();
+  T? next();
 
   /// Tries to revert to the previous item, and returns it if possible.
-  T prev();
+  T? prev();
 }

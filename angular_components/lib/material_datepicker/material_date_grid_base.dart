@@ -42,13 +42,13 @@ abstract class MaterialDateGridBase
   /// The height of each calendar row group, in pixels
   int get rowHeightPx;
 
-  int paddingTop;
-  int paddingBottom;
-  int startingWeekday;
+  late int paddingTop;
+  late int paddingBottom;
+  late int startingWeekday;
 
   /// The scroller div's `scroll-top` property, for setting during
   /// initialization.
-  int _scrollTop;
+  late int _scrollTop;
   int get scrollTop => _scrollTop;
   set scrollTop(int scrollTop) {
     if (_scrollTop != scrollTop) forceScrollTop(scrollTop);
@@ -68,7 +68,7 @@ abstract class MaterialDateGridBase
   /// Where the top of the div lives, relative to the 'anchor' row. The idea is
   /// that `scrollTop + _startTop` gives you the position in pixels relative to
   /// a known point in the data set (in this case, `0`).
-  int startTop;
+  int startTop = 0;
 
   CalendarSelectionMode _mode = CalendarSelectionMode.NONE;
   CalendarSelectionMode get mode => _mode;
@@ -81,7 +81,7 @@ abstract class MaterialDateGridBase
     var nowAllowed = value;
     if (_allowHighlightUpdates != nowAllowed) {
       _allowHighlightUpdates = nowAllowed;
-      if (nowAllowed) onCalendarChange(model.value);
+      if (nowAllowed) onCalendarChange(model.value!);
     }
   }
 
@@ -112,7 +112,7 @@ abstract class MaterialDateGridBase
 
   CalendarListener _inputListener = CalendarListener.noop();
 
-  ForcedScrollDirective scroller;
+  ForcedScrollDirective? scroller;
 
   @override
   void attachScroller(ForcedScrollDirective scroller) {
@@ -122,13 +122,13 @@ abstract class MaterialDateGridBase
   // Needed so we can circle the current date
   Date today;
 
-  StreamSubscription _calendarStream;
+  StreamSubscription? _calendarStream;
   final _disposer = Disposer.oneShot();
   final ChangeDetectorRef changeDetector;
   final DomService _domService;
 
   MaterialDateGridBase(Clock clock, CalendarState initialState,
-      this.changeDetector, this._domService, String mode)
+      this.changeDetector, this._domService, String? mode)
       : paddingTop = MIN_BUFFER_SIZE_PX,
         paddingBottom = MIN_BUFFER_SIZE_PX,
         today = Date.today(clock),
@@ -169,23 +169,23 @@ abstract class MaterialDateGridBase
   /// Fired when the calendar state changes -- e.g. when the user starts
   /// dragging the selected date range.
   @Output()
-  Stream<CalendarState> get stateChange => model.stream;
+  Stream<CalendarState?> get stateChange => model.stream;
 
   /// An object describing the entire state of the calendar -- what's selected
   /// on the calendar, and whether or not the selection is currently "active".
   @Input()
-  set state(CalendarState state) {
+  set state(CalendarState ?state) {
     model.value = state;
     if (_calendarStream == null) onCalendarChange(state);
   }
 
-  CalendarState get state => model.value;
+  CalendarState? get state => model.value;
 
   /// Whether to enable compact calendar styles.
   @Input()
   bool compact = false;
 
-  void onCalendarChange(CalendarState state);
+  void onCalendarChange(CalendarState? state);
 
   void createRender();
 

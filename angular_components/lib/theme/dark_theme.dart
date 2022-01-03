@@ -28,11 +28,10 @@ const darkThemeClass = 'acx-theme-dark';
 ///        # set styles for dark theme
 ///      }
 ///    }
-@Injectable()
 class AcxDarkTheme {
   final bool isDarkTheme;
 
-  AcxDarkTheme(@Inject(darkThemeToken) @Optional() bool dark)
+  AcxDarkTheme(@Inject(darkThemeToken) @Optional() bool? dark)
       : isDarkTheme = dark ?? false;
 
   void theme(HtmlElement element) {

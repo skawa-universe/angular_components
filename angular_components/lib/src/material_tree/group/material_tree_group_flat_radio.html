@@ -4,7 +4,7 @@
  BSD-style license that can be found in the LICENSE file.
 -->
 <material-radio-group
-  [selectionModel]="selectionModel">
+  [selectionModel]="selectionModel!">
   <material-radio
     *ngFor="let option of group"
     class="material-tree-option tree-selection-state"
@@ -16,7 +16,6 @@
       <dynamic-component
         *ngIf="useComponentRenderer"
         class="item component"
-        [componentType]="getComponentType(option)"
         [componentFactory]="getComponentFactory(option)"
         [value]="option">
       </dynamic-component>

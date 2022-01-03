@@ -5,7 +5,6 @@
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/button_decorator/button_decorator.dart';
 import 'package:angular_components/material_icon/material_icon.dart';
 import 'package:angular_components/material_menu/affix/base_affix.dart';
@@ -43,11 +42,11 @@ class IconAffixComponent implements BaseAffixComponent<IconAffix> {
   /// The top most menu node.
   ///
   /// Used in order to close the whole hierarchy.
-  final MenuRoot _menuRoot;
+  final MenuRoot? _menuRoot;
 
   final ChangeDetectorRef _cdRef;
 
-  IconAffix _viewModel;
+  late IconAffix _viewModel;
 
   var _disabled = false;
 
@@ -60,7 +59,7 @@ class IconAffixComponent implements BaseAffixComponent<IconAffix> {
   bool get isActionIconAffix => affix.hasAction;
 
   @visibleForTemplate
-  String get actionIconAriaLabel => _viewModel.ariaLabel;
+  String? get actionIconAriaLabel => _viewModel.ariaLabel;
 
   @visibleForTemplate
   IconAffix get affix => _viewModel;

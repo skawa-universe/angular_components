@@ -16,8 +16,7 @@ import 'package:angular_components/src/material_tree/material_tree_root.dart';
 import 'package:angular_components/mixins/material_dropdown_base.dart';
 import 'package:angular_components/model/selection/selection_options.dart';
 
-const materialTreeLeftPaddingToken =
-    OpaqueToken('MaterialTreeGroupComponent_materialTreeLeftPaddingToken');
+const materialTreeLeftPaddingToken = OpaqueToken('MaterialTreeGroupComponent_materialTreeLeftPaddingToken');
 
 /// An internal component for rendering selection options.
 ///
@@ -44,17 +43,15 @@ const materialTreeLeftPaddingToken =
   templateUrl: 'material_tree_group.html',
   styleUrls: ['material_tree_group.scss.css'],
 )
-class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
-    implements OnDestroy {
+class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T> implements OnDestroy {
   @HostBinding('attr.role')
   static const hostRole = 'group';
 
   static final defaultConstantLeftPadding = 24;
   static final baseGridStep = 8; // Based on $mat-grid
-  static final rowIndentationStep =
-      baseGridStep * 5; // DUPLICATION of _size.scss
+  static final rowIndentationStep = baseGridStep * 5; // DUPLICATION of _size.scss
   static final checkboxWidth = baseGridStep * 5; // DUPLICATION of _size.scss
-  final DropdownHandle _dropdownHandle;
+  final DropdownHandle? _dropdownHandle;
   @Input()
   int level = 0;
   @Input()
@@ -67,46 +64,40 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
   bool allowParentMultiSelection = true;
   @Input()
   bool deselectOnTrigger = true;
-  final MaterialTreeRoot _root;
+  final MaterialTreeRoot<T> _root;
 
-  int _maxInitialOptionsShown;
+  int? _maxInitialOptionsShown;
 
   /// Maximum number of options to show and hide the rest with a "View more"
   /// link.
   ///
   /// If not specified, all options are displayed and "View more" link won't be
   /// visible.
-  int get maxInitialOptionsShown => _maxInitialOptionsShown;
+  int? get maxInitialOptionsShown => _maxInitialOptionsShown;
 
   @Input()
-  set maxInitialOptionsShown(int value) {
+  set maxInitialOptionsShown(int? value) {
     _maxInitialOptionsShown = value;
 
     if (_maxInitialOptionsShown != null) {
-      _sliceOptionGroup(_maxInitialOptionsShown);
+      _sliceOptionGroup(_maxInitialOptionsShown!);
     }
   }
 
-  OptionGroup _visibleGroup;
+  late OptionGroup<T> _visibleGroup;
 
   /// The current visible options group.
   ///
   /// This is the same as [group] when [maxInitialOptionsShown] is not set,
   /// otherwise it contains the first [maxInitialOptionsShown] options from
   /// [group].
-  OptionGroup get visibleGroup => _visibleGroup;
+  OptionGroup<T> get visibleGroup => _visibleGroup;
 
   /// The constant padding for every row.
   final String fixedPadding;
 
-  MaterialTreeGroupComponent(
-      this._root,
-      ChangeDetectorRef changeDetector,
-      [@Optional()
-          this._dropdownHandle,
-      @Optional()
-      @Inject(materialTreeLeftPaddingToken)
-          int constantLeftPadding])
+  MaterialTreeGroupComponent(this._root, ChangeDetectorRef changeDetector,
+      [@Optional() this._dropdownHandle, @Optional() @Inject(materialTreeLeftPaddingToken) int? constantLeftPadding])
       : fixedPadding = '${constantLeftPadding ?? defaultConstantLeftPadding}px',
         super(_root, changeDetector);
 
@@ -114,9 +105,7 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
   @HostBinding('class.material-tree-group')
   final bool isMaterialTreeGroup = true;
 
-  bool showCheckbox(option) =>
-      showSelectionState &&
-      (isSelectable(option) || showDisabledCheckbox(option));
+  bool showCheckbox(option) => showSelectionState && (isSelectable(option) || showDisabledCheckbox(option));
 
   // This returns the item indentation based on it's level.
   // Level 0 means it's the higher parent in the hierarchy, and it gets
@@ -132,12 +121,12 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
     return '${padding}px';
   }
 
-  void handleExpansion(Event e, Object option) {
+  void handleExpansion(Event e, T option) {
     toggleExpansion(option);
     e.stopPropagation();
   }
 
-  void handleSelectionOrExpansion(Event e, Object option) {
+  void handleSelectionOrExpansion(Event e, T option) {
     if (!isExpandable(option) && isSelectable(option) ||
         (allowParentSingleSelection && isSelectable(option)) ||
         (allowParentMultiSelection && isSelectable(option))) {
@@ -151,11 +140,8 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
       }
 
       // Handle shift + select behavior for multi-selection.
-      if (isMultiSelect &&
-          previouslyToggledNode != null &&
-          (e is MouseEvent && e.shiftKey)) {
-        toggleSelectionRangeInclusive(
-            previouslyToggledNode, option, isSelected(previouslyToggledNode));
+      if (isMultiSelect && previouslyToggledNode != null && (e is MouseEvent && e.shiftKey)) {
+        toggleSelectionRangeInclusive(previouslyToggledNode, option, isSelected(previouslyToggledNode));
       }
 
       // For single select, within a dropdown, close the dropdown on toggle.
@@ -180,7 +166,7 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
   /// specified.
   @Input()
   @override
-  set group(OptionGroup _group) {
+  set group(OptionGroup<T> _group) {
     super.group = _group;
 
     if (_maxInitialOptionsShown == null) {
@@ -188,7 +174,7 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
       return;
     }
 
-    _sliceOptionGroup(_maxInitialOptionsShown);
+    _sliceOptionGroup(_maxInitialOptionsShown!);
   }
 
   /// Toggles on the collapsed options.
@@ -200,14 +186,13 @@ class MaterialTreeGroupComponent<T> extends MaterialTreeNode<T>
   }
 
   /// Whether "View more" link should be visible.
-  bool get viewMoreLinkVisible =>
-      _maxInitialOptionsShown != null && !identical(_visibleGroup, group);
+  bool get viewMoreLinkVisible => _maxInitialOptionsShown != null && !identical(_visibleGroup, group);
 
   @override
   void ngOnDestroy() {
     onDestroy();
   }
 
-  static final viewMoreMsg = Intl.message('View more',
-      desc: 'Label for a link that allows user to see the collapsed options.');
+  static final viewMoreMsg =
+      Intl.message('View more', desc: 'Label for a link that allows user to see the collapsed options.');
 }

@@ -5,14 +5,13 @@
 @JS()
 library angular_components.css.acux.zindexer;
 
-import 'package:angular/angular.dart';
 import 'package:js/js.dart';
 
 @JS('acxZIndex')
-external int get _currentZIndex;
+external int? get _currentZIndex;
 
 @JS('acxZIndex')
-external set _currentZIndex(int value);
+external set _currentZIndex(int? value);
 
 /// The layout tools will monotonically increment the zIndex for hoverable
 /// elements.
@@ -21,9 +20,8 @@ const int hoverableAutoIncrement = 1000;
 /// This allows a monotonically increasing z-index for hoverable elements. This
 /// works around the problem where setting a static z-index for newly shown
 /// elements will sometimes show up underneath existing elements.
-@Injectable()
 class ZIndexer {
-  static ZIndexer _currentInstance;
+  static ZIndexer? _currentInstance;
 
   static void _initZIndex() {
     if (_currentZIndex == null) {
@@ -40,8 +38,11 @@ class ZIndexer {
   }
 
   /// Increment and get the current z-index.
-  int pop() => ++_currentZIndex;
+  int pop() {
+    if (_currentInstance != null) _currentZIndex = _currentZIndex! + 1;
+    return _currentZIndex!;
+  }
 
   /// Peek at the current z-index without changing it.
-  int peek() => _currentZIndex;
+  int peek() => _currentZIndex!;
 }

@@ -19,18 +19,15 @@ import 'package:angular_components/model/action/async_action.dart';
   exportAs: 'step',
 )
 class StepDirective extends TemplatePortal {
-  final _continueController =
-      StreamController<AsyncAction<bool>>.broadcast(sync: true);
+  final _continueController = StreamController<AsyncAction<bool>>.broadcast(sync: true);
 
-  final _cancelController =
-      StreamController<AsyncAction<bool>>.broadcast(sync: true);
+  final _cancelController = StreamController<AsyncAction<bool>>.broadcast(sync: true);
 
-  final _jumpController =
-      StreamController<AsyncAction<bool>>.broadcast(sync: true);
+  final _jumpController = StreamController<AsyncAction<bool>>.broadcast(sync: true);
 
   /// Name shown as the title.
   @Input()
-  String name;
+  String? name;
 
   /// Whether the step is optional. Optional steps have an extra label denoting
   /// that they're optional and should be skip-able. Default is false.
@@ -40,7 +37,7 @@ class StepDirective extends TemplatePortal {
   /// Summary text shown when the step is completed in a vertical default-sized
   /// stepper. For other steppers, this doesn't apply.
   @Input()
-  String completeSummary;
+  String? completeSummary;
 
   /// Whether the buttons should be hidden on this step.
   @Input()
@@ -60,6 +57,7 @@ class StepDirective extends TemplatePortal {
   ///
   /// This will show the step icon with a 3/4 circle
   bool _partiallyComplete = false;
+
   @Input()
   set partiallyComplete(bool b) {
     assert(!b || complete == false);
@@ -78,13 +76,12 @@ class StepDirective extends TemplatePortal {
   bool busy = false;
   bool isLast = false;
   bool isSelectable = false;
-  int index;
+  int? index;
 
   /// Optional summary directive associated with this step.
-  SummaryDirective summaryDirective;
+  SummaryDirective? summaryDirective;
 
-  StepDirective(TemplateRef ref, ViewContainerRef viewContainerRef)
-      : super(ref, viewContainerRef);
+  StepDirective(TemplateRef ref, ViewContainerRef viewContainerRef) : super(ref, viewContainerRef);
 
   /// The selection state of the step.
   bool active = false;
@@ -127,8 +124,7 @@ class StepDirective extends TemplatePortal {
 
   bool get shouldShowSummary => !active && completeSummary != null && complete;
 
-  void _requestStepAction(AsyncAction<bool> action,
-      StreamController<AsyncAction<bool>> controller) {
+  void _requestStepAction(AsyncAction<bool> action, StreamController<AsyncAction<bool>> controller) {
     busy = true;
     controller.add(action);
     action.onDone.then((_) {
@@ -165,6 +161,5 @@ class SummaryDirective extends TemplatePortal {
     step.summaryDirective = this;
   }
 
-  SummaryDirective(TemplateRef ref, ViewContainerRef viewContainerRef)
-      : super(ref, viewContainerRef);
+  SummaryDirective(TemplateRef ref, ViewContainerRef viewContainerRef) : super(ref, viewContainerRef);
 }

@@ -4,13 +4,10 @@
 
 import 'dart:html';
 
-import 'package:angular/angular.dart';
-
 /// Adds CSS to the `document.head` location in order to use overlays.
 ///
 /// It is possible to override the default behavior by binding your own:
 ///     const Provider(OverlayStyleConfig, useClass: CustomOverlayStyleConfig);
-@Injectable()
 class OverlayStyleConfig {
   static const _styleId = "__overlay_styles";
   // TODO(google): Move these styles out into a scss file and inline them.
@@ -91,7 +88,7 @@ class OverlayStyleConfig {
   Document _document;
 
   OverlayStyleConfig(Document document)
-      : _styleHost = document.querySelector('head'),
+      : _styleHost = document.querySelector('head') as HeadElement,
         _document = document;
 
   void registerStyles() {

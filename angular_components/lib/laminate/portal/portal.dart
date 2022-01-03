@@ -11,7 +11,7 @@ import 'package:angular_components/utils/disposer/disposer.dart';
 
 /// Dynamic content that can be inserted into a host container.
 abstract class Portal<T> {
-  PortalHost _attachedHost;
+  PortalHost? _attachedHost;
 
   /// Attaches the portal within [host].
   ///
@@ -19,13 +19,13 @@ abstract class Portal<T> {
   ///
   /// Throws [StateError] if a portal is already attached.
   Future<dynamic /*ComponentRef<Object> | Map<String, dynamic>*/ > attach(
-      PortalHost host) {
+      PortalHost? host) {
     assert(host != null);
     if (isAttached) {
       throw StateError('Already attached to host!');
     } else {
       _attachedHost = host;
-      return host.attach(this) as Future<T>;
+      return host!.attach(this as Portal<Object>) as Future<T>;
     }
   }
 
@@ -39,7 +39,7 @@ abstract class Portal<T> {
     final currentHost = _attachedHost;
     assert(currentHost != null);
     _attachedHost = null;
-    return currentHost.detach();
+    return currentHost!.detach();
   }
 
   /// Returns true if this portal is in the process of being attached but the
@@ -49,7 +49,7 @@ abstract class Portal<T> {
   /// TODO(google): If this is not used in public API, make it private.
   bool get isAttached => _attachedHost != null;
 
-  void setAttachedHost(PortalHost host) {
+  void setAttachedHost(PortalHost? host) {
     _attachedHost = host;
   }
 }
@@ -60,7 +60,7 @@ class ComponentPortal<T> extends Portal<T> {
   ///
   /// This is necessary in cases where you don't want the portal host to be the
   /// origin, instead, you want it to be some other location in your app.
-  final ViewContainerRef origin;
+  final ViewContainerRef? origin;
 
   /// The factory to create the component.
   final ComponentFactory<Object> componentFactory;
@@ -82,10 +82,10 @@ class TemplatePortal extends Portal<Map<String, dynamic>> {
   Map<String, dynamic> _locals = const {};
 
   /// The template this portal originated from.
-  final TemplateRef template;
+  final TemplateRef? template;
 
   /// The ViewContainerRef this portal originated from.
-  final ViewContainerRef viewContainer;
+  final ViewContainerRef? viewContainer;
 
   // TODO(google): Add optional locals map initialization.
   TemplatePortal(this.template, this.viewContainer) {
@@ -100,10 +100,10 @@ class TemplatePortal extends Portal<Map<String, dynamic>> {
 
   /// Attach to the [host], optionally with [locals] specific to this instance.
   @override
-  Future<Map<String, dynamic>> attach(PortalHost host,
+  Future<Map<String, dynamic>> attach(PortalHost? host,
       [Map<String, dynamic> locals = const {}]) {
     _locals = locals;
-    return super.attach(host);
+    return super.attach(host) as Future<Map<String, dynamic>>;
   }
 
   @override
@@ -127,7 +127,7 @@ abstract class PortalHost implements Disposable {
   /// When possible, prefer using [Portal.attach], as it returns a typed result
   /// instead of [dynamic].
   Future<dynamic /*ComponentRef<Object> | Map<String, dynamic>*/ > attach(
-      Portal<Object> portal);
+      Portal<Object>? portal);
 
   /// Detaches any active portal.
   ///
@@ -145,13 +145,13 @@ abstract class PortalHost implements Disposable {
 ///
 /// Implement [attachComponentPortal] and [attachTemplatePortal].
 abstract class BasePortalHost implements PortalHost {
-  Portal<Object> _attachedPortal;
-  DisposeFunction _detachPortal;
+  Portal<Object>? _attachedPortal;
+  DisposeFunction? _detachPortal;
   bool _isDisposed = false;
 
   @override
   Future<dynamic /*ComponentRef<Object> | Map<String, dynamic>*/ > attach(
-      Portal<Object> portal) {
+      Portal<Object>? portal) {
     assert(portal != null);
     if (_isDisposed) {
       throw StateError('Already disposed.');
@@ -184,10 +184,10 @@ abstract class BasePortalHost implements PortalHost {
 
   @override
   Future<void> detach() {
-    _attachedPortal.setAttachedHost(null);
+    _attachedPortal!.setAttachedHost(null);
     _attachedPortal = null;
     if (_detachPortal != null) {
-      _detachPortal();
+      _detachPortal!();
       _detachPortal = null;
     }
     return Future.value();
@@ -221,7 +221,7 @@ class DelegatingPortalHost implements PortalHost {
 
   @override
   Future<dynamic /*ComponentRef<Object> | Map<String, dynamic>*/ > attach(
-          Portal<Object> portal) =>
+          Portal<Object>? portal) =>
       _delegateHost.attach(portal);
 
   @override
@@ -253,7 +253,7 @@ class PortalHostDirective extends BasePortalHost {
     // however, then use that.
     var viewContainerRef = _viewContainerRef;
     if (portal.origin != null) {
-      viewContainerRef = portal.origin;
+      viewContainerRef = portal.origin!;
     }
     final ref = _componentLoader.loadNextToLocation(
         portal.componentFactory, viewContainerRef);
@@ -264,14 +264,14 @@ class PortalHostDirective extends BasePortalHost {
 
   @override
   Future<Map<String, dynamic>> attachTemplatePortal(TemplatePortal portal) {
-    final viewRef = _viewContainerRef.createEmbeddedView(portal.template);
+    final viewRef = _viewContainerRef.createEmbeddedView(portal.template!);
     portal.locals.forEach(viewRef.setLocal);
     setPortalDisposer(_viewContainerRef.clear);
     return Future.value(BasePortalHost.createLocalsMap(viewRef));
   }
 
   @Input('portalHost')
-  set portal(Portal<Object> portal) {
+  set portal(Portal<Object>? portal) {
     if (hasAttached) {
       detach().then((_) {
         if (portal != null) {
@@ -304,7 +304,7 @@ class DomPortalHost extends BasePortalHost {
           'is not an Angular component.');
     }
     return _imperativeViewUtils
-        .insertComponent(portal.componentFactory, portal.origin, _hostElement)
+        .insertComponent(portal.componentFactory, portal.origin!, _hostElement)
         .then((ref) {
       setPortalDisposer(ref.destroy);
       return ref;
@@ -314,7 +314,7 @@ class DomPortalHost extends BasePortalHost {
   @override
   Future<Map<String, dynamic>> attachTemplatePortal(TemplatePortal portal) {
     return _imperativeViewUtils
-        .insertAngularView(_hostElement, portal.template, portal.viewContainer)
+        .insertAngularView(_hostElement, portal.template!, portal.viewContainer!)
         .then((ref) {
       portal.locals.forEach(ref.viewRef.setLocal);
       setPortalDisposer(ref.dispose);

@@ -4,7 +4,6 @@
 
 import 'dart:html';
 
-import 'package:meta/meta.dart';
 import 'package:angular_components/material_datepicker/calendar.dart';
 import 'package:angular_components/model/date/date.dart';
 import 'package:angular_components/model/observable/observable.dart';
@@ -24,7 +23,7 @@ class CalendarListener implements Disposable {
   factory CalendarListener.singleDate(
       ObservableReference<CalendarState> model) = _DateListener;
   factory CalendarListener.dateRange(ObservableReference<CalendarState> model,
-      {@required bool movingStartMaintainsLength}) = _RangeListener;
+      {required bool movingStartMaintainsLength}) = _RangeListener;
 }
 
 /// Listens for clicks on single dates, and selects those.
@@ -34,12 +33,12 @@ class _DateListener implements CalendarListener {
 
   @override
   void onClick(Date day) {
-    model.value = model.value.setCurrentSelection(day, day);
+    model.value = model.value!.setCurrentSelection(day, day);
   }
 
   @override
   void onMouseMove(Date day) {
-    model.value = model.value.updateCurrentPreview(day);
+    model.value = model.value!.updateCurrentPreview(day);
   }
 
   @override
@@ -48,9 +47,9 @@ class _DateListener implements CalendarListener {
   }
 
   @override
-  void onMouseDown(Date day) {}
+  void onMouseDown(Date? day) {}
   @override
-  void onMouseLeave(Date day) {}
+  void onMouseLeave(Date? day) {}
   @override
   void dispose() {}
 }
@@ -70,15 +69,15 @@ class _RangeListener implements CalendarListener {
   final bool movingStartMaintainsLength;
   final _disposer = Disposer.multi();
 
-  _RangeListener(this.model, {@required this.movingStartMaintainsLength}) {
+  _RangeListener(this.model, {required this.movingStartMaintainsLength}) {
     _initSelectionPreview();
     _disposer.addStreamSubscription(model.stream.listen((s) {
-      if (s.currentSelection != previewedSelection) {
+      if (s?.currentSelection != previewedSelection) {
         // Reinit preview and reset click count whenever a different range
         // becomes selected
         _initSelectionPreview();
         _consecutiveClicks = 0;
-      } else if (s.cause == CausedBy.external || s.cause == CausedBy.drag) {
+      } else if (s?.cause == CausedBy.external || s?.cause == CausedBy.drag) {
         // Reset click count when the range's value is changed externally
         _consecutiveClicks = 0;
       }
@@ -88,22 +87,22 @@ class _RangeListener implements CalendarListener {
   _DragState state = _DragState.canPreview;
 
   // The first date selected during a drag.
-  Date dragAnchor;
+  Date? dragAnchor;
 
   // The ID of the CalendarSelection being previewed
-  String previewedSelection;
+  String? previewedSelection;
 
   // The ID of the CalendarSelection relating to the pendingGrabOrClick state
-  String selectionPendingGrab;
+  String? selectionPendingGrab;
 
   // Clicking twice to set a range causes the next range to be selected
   int _consecutiveClicks = 0;
 
   bool _datesEqual(Date a, Date b) =>
-      datesEqualAtResolution(a, b, model.value.resolution);
+      datesEqualAtResolution(a, b, model.value!.resolution);
 
   void _initSelectionPreview() {
-    previewedSelection = model.value.currentSelection;
+    previewedSelection = model.value!.currentSelection!;
     _consecutiveClicks = 0;
   }
 
@@ -120,19 +119,19 @@ class _RangeListener implements CalendarListener {
       return false;
     }
 
-    for (var selection in model.value.selections) {
+    for (var selection in model.value!.selections) {
       if (selection.start == null || selection.end == null) {
         // For now, dragging open-ended ranges is not supported
         // TODO(google): Support dragging open-ended ranges, or deprecate them
         continue;
       }
-      if (_datesEqual(d, selection.start)) {
+      if (_datesEqual(d, selection.start!)) {
         state = _DragState.pendingGrabOrClick;
         dragAnchor = selection.end;
         selectionPendingGrab = selection.id;
         return true;
       }
-      if (_datesEqual(d, selection.end)) {
+      if (_datesEqual(d, selection.end!)) {
         state = _DragState.pendingGrabOrClick;
         dragAnchor = selection.start;
         selectionPendingGrab = selection.id;
@@ -146,11 +145,11 @@ class _RangeListener implements CalendarListener {
   // This method should not make assumptions about which input event triggered
   // it.
   void confirmPreviewedSelection() {
-    if (model.value.preview == null) return;
+    if (model.value!.preview == null) return;
 
     // Switch to the next range every 2 clicks
     _consecutiveClicks++;
-    model.value = model.value.confirmPreview(
+    model.value = model.value!.confirmPreview(
         confirmRange: _consecutiveClicks >= 2,
         movingStartMaintainsLength: movingStartMaintainsLength);
   }
@@ -177,10 +176,10 @@ class _RangeListener implements CalendarListener {
         // If this was actually a drag, confirm current selection (set
         // previously by mousemove) and select the next range
         model.value = CalendarState(
-            selections: model.value.selections,
-            currentSelection: model.value.currentSelection,
+            selections: model.value!.selections,
+            currentSelection: model.value!.currentSelection,
             cause: CausedBy.rangeConfirm,
-            resolution: model.value.resolution);
+            resolution: model.value!.resolution);
       }
 
       // Clear dragging state in any case
@@ -191,13 +190,13 @@ class _RangeListener implements CalendarListener {
 
   @override
   void onClick(Date day) {
-    if (model.value.has(model.value.currentSelection)) {
+    if (model.value!.has(model.value!.currentSelection)) {
       updateActiveDragOrPreview(day); // in case onMouseMove() didn't fire
       confirmPreviewedSelection();
     } else {
       // Selection is null, so create a new selection here and make the
       // end date active.
-      model.value = model.value.setCurrentSelection(day, day,
+      model.value = model.value!.setCurrentSelection(day, day,
           cause: CausedBy.endpointConfirm, previewAnchoredAtStart: true);
       _consecutiveClicks = 1;
     }
@@ -221,17 +220,17 @@ class _RangeListener implements CalendarListener {
       // If a grab is pending, ensure we select the right range before making
       // changes
       if (state == _DragState.pendingGrabOrClick &&
-          model.value.has(model.value.currentSelection)) {
+          model.value!.has(model.value!.currentSelection)) {
         assert(selectionPendingGrab != null);
-        model.value = model.value.select(selectionPendingGrab);
+        model.value = model.value!.select(selectionPendingGrab);
         selectionPendingGrab = null;
       }
       state = _DragState.dragging;
     }
 
     model.value = (state == _DragState.dragging)
-        ? model.value.updateDrag(day, dragAnchor)
-        : model.value.updateCurrentPreview(day);
+        ? model.value!.updateDrag(day, dragAnchor!)
+        : model.value!.updateCurrentPreview(day);
   }
 
   // When the mouse leaves a valid date, previewing should stop.
@@ -239,7 +238,7 @@ class _RangeListener implements CalendarListener {
   @override
   void onMouseLeave(Date day) {
     if (state == _DragState.canPreview) {
-      model.value = model.value.cancelCurrentPreview();
+      model.value = model.value!.cancelCurrentPreview();
     }
   }
 

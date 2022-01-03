@@ -22,7 +22,7 @@ class FocusItemDirective extends RootFocusable implements FocusableItem {
   final String role;
 
   FocusItemDirective(HtmlElement element, this._changeDetectorRef,
-      @Attribute('role') String role)
+      @Attribute('role') String? role)
       : this.role = role ?? 'listitem',
         super(element);
 

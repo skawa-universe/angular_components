@@ -2,10 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:angular/angular.dart';
 import 'package:angular_forms/angular_forms.dart';
 
-typedef _ValidatorFn = Map<String, dynamic> Function(AbstractControl c);
+typedef _ValidatorFn = Map<String, dynamic>? Function(AbstractControl c);
 
 /// A validator that defers to another delegator.
 ///
@@ -13,12 +12,11 @@ typedef _ValidatorFn = Map<String, dynamic> Function(AbstractControl c);
 /// needs to inject [NgControl] it could end up depending on itself if it binds
 /// itself to [NG_VALIDATORS]. Instead, it could bind this class, inject it and
 /// set itself to [delegate] field.
-@Injectable()
 class DeferredValidator {
   // Use list instead of set so that don't need to conver for the compose
   // function.
   final List<_ValidatorFn> _delegates = <_ValidatorFn>[];
-  _ValidatorFn _validator;
+  _ValidatorFn? _validator;
 
   void add(_ValidatorFn validation) {
     // Shouldn't add the same validator
@@ -33,7 +31,7 @@ class DeferredValidator {
     _validator = null; // Reset the validator so that is is rebuilt.
   }
 
-  Map<String, dynamic> call(AbstractControl control) {
+  Map<String, dynamic>? call(AbstractControl control) {
     if (_validator == null) {
       final numDelegates = _delegates.length;
       if (numDelegates == 0) return null; // No validation needed
@@ -43,6 +41,6 @@ class DeferredValidator {
       _validator =
           numDelegates > 1 ? Validators.compose(_delegates) : _delegates.single;
     }
-    return _validator(control);
+    return _validator!(control);
   }
 }

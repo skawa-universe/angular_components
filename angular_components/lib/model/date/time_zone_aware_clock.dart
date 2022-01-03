@@ -49,7 +49,6 @@ const timeZoneAwareClockModule = Module(provide: timeZoneAwareClockProviders);
 ///   which may be incorrect or inaccurate.
 // TODO(google): Consider returning a subclass of DateTime which forbids
 // calling millisecondsSinceEpoch/microsecondsSinceEpoch.
-@Injectable()
 class TimeZoneAwareClock extends Clock {
   TimeZoneAwareClock(SettableTimeZone timeZone) : super(timeZone._now);
 
@@ -61,12 +60,10 @@ class TimeZoneAwareClock extends Clock {
   String toString() => 'TimeZoneAwareClock';
 }
 
-@Injectable()
 Clock clockFactory(SettableTimeZone timeZone) => TimeZoneAwareClock(timeZone);
 
 /// Workaround to avoid making SettableTimeZone @Injectable(), since that gives
 /// the error: 'Missing identifier "TimeFunction" from metadata map".
-@Injectable()
 SettableTimeZone settableTimeZoneFactory() => SettableTimeZone();
 
 /// Wrapper to set/get a custom time zone for the [Clock] provided by
@@ -80,8 +77,8 @@ class SettableTimeZone {
   ///
   /// May be null, indicating that the current time zone is unknown. In this
   /// case, [Clock.now()] will print an error and return system time.
-  Duration get offsetFromUtc => _offsetFromUtc;
-  set offsetFromUtc(Duration newOffset) {
+  Duration? get offsetFromUtc => _offsetFromUtc;
+  set offsetFromUtc(Duration? newOffset) {
     if (newOffset != null && newOffset.inMicroseconds == null) {
       throw ArgumentError.value(
           newOffset, 'newOffset' 'holds a null or undefined value');
@@ -96,7 +93,7 @@ class SettableTimeZone {
     _offsetFromUtc = newOffset;
   }
 
-  Duration _offsetFromUtc;
+  Duration? _offsetFromUtc;
 
   /// Returns true iff [offsetFromUtc] is non-null.
   bool get isInitialized => _offsetFromUtc != null;
@@ -140,7 +137,7 @@ class SettableTimeZone {
 
     // To convert system time to UTC, subtract systemTime.timeZoneOffset.
     // To convert UTC to the Custom's local time, add [offsetFromUtc].
-    var offset = offsetFromUtc - systemTime.timeZoneOffset;
+    var offset = offsetFromUtc! - systemTime.timeZoneOffset;
     if (offset.inMicroseconds == null) {
       throw StateError('Computed time offset is null or undefined! '
           '$offsetFromUtc - ${systemTime.timeZoneOffset} = $offset');

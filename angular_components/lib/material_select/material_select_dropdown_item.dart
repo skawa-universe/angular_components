@@ -42,14 +42,14 @@ class MaterialSelectDropdownItemComponent<T>
 
   final String _generatedId;
 
-  String _id;
+  String? _id;
 
   /// The id of the element.
   @HostBinding('attr.id')
-  String get id => _customAriaHandling ? null : (_id ?? _generatedId);
+  String? get id => _customAriaHandling ? null : (_id ?? _generatedId);
 
   @Input()
-  set id(String id) {
+  set id(String? id) {
     _id = id;
   }
 
@@ -57,10 +57,10 @@ class MaterialSelectDropdownItemComponent<T>
 
   MaterialSelectDropdownItemComponent(
       HtmlElement element,
-      @Attribute('role') String role,
-      @Optional() DropdownHandle dropdown,
-      @Optional() ActivationHandler activationHandler,
-      @Optional() IdGenerator idGenerator,
+      @Attribute('role') String? role,
+      @Optional() DropdownHandle? dropdown,
+      @Optional() ActivationHandler? activationHandler,
+      @Optional() IdGenerator? idGenerator,
       ChangeDetectorRef cdRef)
       : _generatedId =
             (idGenerator ?? SequentialIdGenerator.fromUUID()).nextId(),
@@ -69,8 +69,7 @@ class MaterialSelectDropdownItemComponent<T>
   }
 
   @HostBinding('attr.aria-selected')
-  @override
-  bool get isSelected => super.isSelected;
+  String get selectedStr => isSelected.toString();
 
   @HostListener('mousedown')
   void preventTextSelectionIfShiftKey(MouseEvent e) {
@@ -78,7 +77,7 @@ class MaterialSelectDropdownItemComponent<T>
   }
 
   @override
-  void onLoadCustomComponent(ComponentRef ref) {
+  void onLoadCustomComponent(ComponentRef? ref) {
     _customAriaHandling = ref?.instance is HandlesAria;
     if (_customAriaHandling) role = null;
   }

@@ -33,8 +33,8 @@ import 'material_expansionpanel.dart';
 @Directive(selector: 'material-expansionpanel-set')
 class MaterialExpansionPanelSet implements OnDestroy {
   final _panelDisposer = Disposer.multi();
-  MaterialExpansionPanel _openPanel;
-  List<MaterialExpansionPanel> _panels;
+  MaterialExpansionPanel? _openPanel;
+  late List<MaterialExpansionPanel> _panels;
 
   @ContentChildren(MaterialExpansionPanel, descendants: false)
   set panels(List<MaterialExpansionPanel> panels) {
@@ -56,7 +56,7 @@ class MaterialExpansionPanelSet implements OnDestroy {
 
       _panelDisposer
         ..addStreamSubscription((panel.isExpandedChange.listen((isExpanded) {
-          if (isExpanded) _setOpenPanel(panel);
+          if (isExpanded!) _setOpenPanel(panel);
         })))
         ..addStreamSubscription(panel.open.listen((action) {
           _onPanelOpen(panel, action);
@@ -80,14 +80,14 @@ class MaterialExpansionPanelSet implements OnDestroy {
       MaterialExpansionPanel panel, AsyncAction<bool> action) async {
     if (_openPanel == null) _setOpenPanel(panel);
 
-    if (_openPanel.activeSaveCancelAction) {
+    if (_openPanel!.activeSaveCancelAction) {
       // Do not open the new panel, when the currently opened panel has an
       // in-progress action.
       action.cancel();
       return;
     }
 
-    action.cancelIf(_openPanel.collapse(byUserAction: false).then((success) {
+    action.cancelIf(_openPanel!.collapse(byUserAction: false).then((success) {
       if (success) _setOpenPanel(panel);
       return !success;
     }));
@@ -99,7 +99,7 @@ class MaterialExpansionPanelSet implements OnDestroy {
     if (wasCollapseSucessful && _openPanel == panel) _setOpenPanel(null);
   }
 
-  void _setOpenPanel(MaterialExpansionPanel panel) {
+  void _setOpenPanel(MaterialExpansionPanel? panel) {
     if (_openPanel == panel) return;
     _openPanel = panel;
     for (final panel in _panels) {

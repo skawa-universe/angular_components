@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:angular/angular.dart';
-import 'package:angular/meta.dart';
 import 'package:angular_components/focus/focus.dart';
 import 'package:angular_components/interfaces/has_disabled.dart';
 import 'package:angular_components/material_icon/material_icon.dart';
@@ -45,7 +44,7 @@ class MaterialRadioComponent extends RootFocusable
         FocusableItem,
         OnDestroy {
   final ChangeDetectorRef _changeDetector;
-  final MaterialRadioGroupComponent _group;
+  final MaterialRadioGroupComponent? _group;
   final HtmlElement _root;
   final _disposer = Disposer.oneShot();
 
@@ -53,8 +52,8 @@ class MaterialRadioComponent extends RootFocusable
       this._root,
       this._changeDetector,
       @Host() @Optional() this._group,
-      @Self() @Optional() NgControl cd,
-      @Attribute('role') String role)
+      @Self() @Optional() NgControl? cd,
+      @Attribute('role') String? role)
       : this.role = role ?? 'radio',
         super(_root) {
     // When NgControl is present on the host element, the component
@@ -97,8 +96,10 @@ class MaterialRadioComponent extends RootFocusable
   /// suggests that interaction is not allowed.
   @Input()
   @HostBinding('class.disabled')
-  @HostBinding('attr.aria-disabled')
   bool disabled = false;
+
+  @HostBinding('attr.aria-disabled')
+  String get disabledStr => disabled.toString();
 
   /// Published when the radio selection state changes.
   @Output('checkedChange')
@@ -114,15 +115,17 @@ class MaterialRadioComponent extends RootFocusable
 
     if (_group != null) {
       if (isChecked) {
-        _group.componentSelection.select(this);
+        _group!.componentSelection.select(this);
       } else {
-        _group.componentSelection.deselect(this);
+        _group!.componentSelection.deselect(this);
       }
     }
     _onChecked.add(_checked);
   }
 
   @HostBinding('attr.aria-checked')
+  String get checkedStr => _checked.toString();
+
   bool get checked => _checked;
   bool _checked = false;
 
@@ -135,7 +138,7 @@ class MaterialRadioComponent extends RootFocusable
   @HostBinding('attr.tabindex')
   @visibleForTesting
   @visibleForTemplate
-  int get tabIndex => disabled ? -1 : _enabledTabIndex;
+  String get tabIndex => disabled ? "-1" : _enabledTabIndex.toString();
 
   int _enabledTabIndex = 0;
 
@@ -190,7 +193,7 @@ class MaterialRadioComponent extends RootFocusable
   @visibleForTemplate
   void onFocus() {
     _isFocused = true;
-    if (_group != null) _group.focusSelection.select(this);
+    if (_group != null) _group!.focusSelection.select(this);
   }
 
   @HostListener('blur')
@@ -198,7 +201,7 @@ class MaterialRadioComponent extends RootFocusable
   @visibleForTesting
   void onBlur() {
     _isFocused = false;
-    if (_group != null) _group.focusSelection.deselect(this);
+    if (_group != null) _group!.focusSelection.deselect(this);
   }
 
   @visibleForTesting
@@ -230,5 +233,5 @@ class MaterialRadioComponent extends RootFocusable
 
   // Unimplemented in M1.
   Future get focusDelegate async => null;
-  String radioGroupName;
+  String? radioGroupName;
 }

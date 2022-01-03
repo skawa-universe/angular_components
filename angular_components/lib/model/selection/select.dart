@@ -25,7 +25,7 @@ abstract class Filterable {
   /// The query passed in on the last call to filter.
   ///
   /// It is null if filter has never been called.
-  Object get currentQuery;
+  Object? get currentQuery;
 
   /// Max number of items requested on the last call to filter.
   ///
@@ -51,6 +51,6 @@ abstract class Parent<P, C> {
 
   /// Returns the children of the parent and filter the results based of the
   /// query if supported.
-  DisposableFuture<C> childrenOf(P parent, [Object filterQuery]) =>
+  DisposableFuture<C> childrenOf(P parent, [Object? filterQuery]) =>
       DisposableFuture.fromValue(const [] as C);
 }

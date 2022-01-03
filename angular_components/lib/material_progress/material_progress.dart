@@ -76,7 +76,7 @@ class MaterialProgressComponent implements AfterViewInit, OnDestroy {
   bool get useFallbackAnimation =>
       indeterminate && (!_useFancyAnimation || !supportsAnimationApi);
 
-  String get ariaValueNow => indeterminate == true ? null : '${activeProgress}';
+  String? get ariaValueNow => indeterminate == true ? null : '${activeProgress}';
 
   String get ariaValue =>
       indeterminate ? _loadingValue : _activeProgressValue(activeProgress);
@@ -109,24 +109,24 @@ class MaterialProgressComponent implements AfterViewInit, OnDestroy {
 
   double _calcRatio(int value) => (value.clamp(min, max) - min) / (max - min);
 
-  @ViewChild('primary', read: HtmlElement)
-  set primary(HtmlElement value) {
+  @ViewChild('primary', read: DivElement)
+  set primary(DivElement? value) {
     _primaryIndicator = value;
   }
 
-  DivElement _primaryIndicator;
-  Animation _primaryAnimation;
+  DivElement? _primaryIndicator;
+  Animation? _primaryAnimation;
 
-  @ViewChild('secondary', read: HtmlElement)
-  set secondary(HtmlElement value) {
+  @ViewChild('secondary', read: DivElement)
+  set secondary(DivElement? value) {
     _secondaryIndicator = value;
   }
 
-  DivElement _secondaryIndicator;
-  Animation _secondaryAnimation;
+  DivElement? _secondaryIndicator;
+  Animation? _secondaryAnimation;
 
   MaterialProgressComponent(
-      @Attribute('disable-fancy-animation') String disableFancyAnimation,
+      @Attribute('disable-fancy-animation') String? disableFancyAnimation,
       this._changeDetector,
       this._element)
       : _useFancyAnimation = disableFancyAnimation == null;
@@ -185,8 +185,8 @@ class MaterialProgressComponent implements AfterViewInit, OnDestroy {
       {'transform': 'translateX(${width}px) scaleX(0.1)'},
     ];
     _primaryAnimation =
-        _primaryIndicator.animate(primaryKeyframes, _indeterminateTiming);
+        _primaryIndicator!.animate(primaryKeyframes, _indeterminateTiming);
     _secondaryAnimation =
-        _secondaryIndicator.animate(secondaryKeyframes, _indeterminateTiming);
+        _secondaryIndicator!.animate(secondaryKeyframes, _indeterminateTiming);
   }
 }

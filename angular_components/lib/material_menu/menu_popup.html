@@ -4,26 +4,24 @@
  BSD-style license that can be found in the LICENSE file.
 -->
 <material-popup enforceSpaceConstraints
-    [(visible)]="isExpanded"
-    [source]="popupSource"
-    [class]="popupClass"
-    [preferredPositions]="preferredPositions">
-  <focus-trap>
-    <ng-content></ng-content>
-    <material-list
-        *deferredContent="true"
-        class="item-group-list"
-        role="none"
-        [width]="width">
-      <menu-item-groups
-          [activateFirstItemOnInit]="activateFirstItemOnExpand"
-          [activateLastItemOnInit]="activateLastItemOnExpand"
-          [menu]="menu"
-          [popupClass]="popupClass"
-          menu-root
-          autoFocus
-          preventCloseOnPressLeft>
-      </menu-item-groups>
-    </material-list>
-  </focus-trap>
+                [(visible)]="isExpanded"
+                [source]="popupSource!"
+                [class]="popupClass"
+                [preferredPositions]="preferredPositions">
+    <focus-trap>
+        <ng-content></ng-content>
+        <material-list *deferredContent="true"
+                       class="item-group-list"
+                       role="none"
+                       [width]="width">
+            <menu-item-groups [activateFirstItemOnInit]="activateFirstItemOnExpand"
+                              [activateLastItemOnInit]="activateLastItemOnExpand"
+                              [menu]="menu"
+                              [popupClass]="popupClass"
+                              menu-root
+                              autoFocus
+                              preventCloseOnPressLeft>
+            </menu-item-groups>
+        </material-list>
+    </focus-trap>
 </material-popup>

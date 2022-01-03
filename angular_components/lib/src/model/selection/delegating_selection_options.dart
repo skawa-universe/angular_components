@@ -13,10 +13,10 @@ class DelegatingSelectionOptions<T> implements SelectionOptions<T> {
   DelegatingSelectionOptions(this._options);
 
   @override
-  List<OptionGroup<T>> get optionGroups => _options.optionGroups;
+  List<OptionGroup<T>>? get optionGroups => _options.optionGroups;
 
   @override
-  set optionGroups(List<OptionGroup<T>> groups) {
+  set optionGroups(List<OptionGroup<T>>? groups) {
     _options.optionGroups = groups;
   }
 
@@ -32,5 +32,5 @@ class DelegatingSelectionOptions<T> implements SelectionOptions<T> {
   List<T> get optionsList => _options.optionsList;
 
   @override
-  Stream<List<OptionGroup<T>>> get stream => _options.stream;
+  Stream<List<OptionGroup<T>>?> get stream => _options.stream;
 }

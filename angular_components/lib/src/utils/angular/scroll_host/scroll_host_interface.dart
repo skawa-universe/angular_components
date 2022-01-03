@@ -16,7 +16,7 @@ abstract class ScrollHostEvent {
 
   /// Change in the host's content's vertical position associated with this
   /// event, in pixels.
-  int get deltaY;
+  int? get deltaY;
 }
 
 /// Provides access to a scrollbar, its size and their change events.
@@ -76,7 +76,7 @@ abstract class ScrollHost implements Disposable {
   PanController get panController;
 
   /// Gets the sticky controller for the given scroll host.
-  StickyController get stickyController;
+  StickyController? get stickyController;
 
   /// A stream which fires when [element] intersects with the scroll viewport.
   ///
@@ -107,8 +107,8 @@ abstract class StickyController implements Disposable {
   /// If [stickyKey] is provided, then only the last (when [position] is top)
   /// or the first (when [position] is bottom) sticky element with the same
   /// [stickyKey] will be stuck.
-  void stick(Element element, StickyPosition position, Element range,
-      {String stickyClass, String stickyKey});
+  void stick(Element element, StickyPosition position, Element? range,
+      {String? stickyClass, String? stickyKey});
 
   /// Unregisters the element from sticking.
   void unstick(Element element);
@@ -151,7 +151,7 @@ abstract class StickyController implements Disposable {
   ///
   /// This does not work correctly for any current implementations when
   /// interleaving different stickyKeys.
-  bool enableSmoothPushing;
+  bool enableSmoothPushing = false;
 }
 
 /// Sticky controller z index.

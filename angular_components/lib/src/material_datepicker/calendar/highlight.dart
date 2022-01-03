@@ -30,10 +30,9 @@ class Highlight {
 
   final int group;
 
-  List<String> _classes;
+  List<String>? _classes;
 
-  Highlight(this.start, this.end, this.containedRanges,
-      {this.classIndexOffset = 0, this.group = 0});
+  Highlight(this.start, this.end, this.containedRanges, {this.classIndexOffset = 0, this.group = 0});
 
   List<String> get classes => _classes ?? _initClasses();
 
@@ -41,13 +40,12 @@ class Highlight {
     _classes = ['highlight']
       ..addAll(_positionClasses())
       ..addAll(_colorClasses());
-    return _classes;
+    return _classes!;
   }
 
-  List<String> _positionClasses() =>
-      ['start-${start + classIndexOffset}', 'end-${end + classIndexOffset}'];
-  Iterable<String> _colorClasses() =>
-      containedRanges.map((r) => 'highlight-${r.id}');
+  List<String> _positionClasses() => ['start-${start + classIndexOffset}', 'end-${end + classIndexOffset}'];
+
+  Iterable<String> _colorClasses() => containedRanges.map((r) => 'highlight-${r.id}');
 
   @override
   String toString() => 'Highlight on $containedRanges ($start - $end)';
@@ -59,11 +57,11 @@ abstract class _HasHighlights {
   static final Function _setEq = UnorderedIterableEquality().equals;
 
   /// `true` if the two highlights are for the same set of calendar selections.
-  static bool _matchingRangesEq(Highlight a, Highlight b) => _setEq(
-      a.containedRanges.map((r) => r.id), b.containedRanges.map((r) => r.id));
+  static bool _matchingRangesEq(Highlight a, Highlight b) =>
+      _setEq(a.containedRanges.map((r) => r.id), b.containedRanges.map((r) => r.id));
 
-  CalendarState _state;
-  List<Highlight> _highlights;
+  CalendarState? _state;
+  late List<Highlight> _highlights;
 
   _HasHighlights(this._state);
 
@@ -86,10 +84,9 @@ abstract class _HasHighlights {
   /// Gets the selected ranges which contain both given dates.
   List<CalendarSelection> _matching(Date a, Date b) {
     List<CalendarSelection> selections = _state?.selections ?? [];
-    return selections
-        .where(
-            (r) => _state.highlighted(r.id, a) && _state.highlighted(r.id, b))
-        .toList();
+    return _state != null
+        ? selections.where((r) => _state!.highlighted(r.id, a) && _state!.highlighted(r.id, b)).toList()
+        : [];
   }
 
   /// Gets a series of [Highlight] instances that cover each consecutive pair of

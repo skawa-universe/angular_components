@@ -32,11 +32,11 @@ int _rippleIndex = 0;
 
 // If these were initialized here (and final), dart2js would wait to initialize
 // them until the first mousedown event, increasing latency.
-List<DivElement> _ripplePool;
-DivElement _rippleTemplate;
-Map<String, double> _opacityTiming;
-List<Map<String, double>> _opacityKeyframes;
-Map<String, dynamic> _transformTiming;
+List<DivElement?>? _ripplePool;
+DivElement? _rippleTemplate;
+Map<String, double>? _opacityTiming;
+List<Map<String, double>>? _opacityKeyframes;
+Map<String, dynamic>? _transformTiming;
 
 // This is outside of the class because it causes dart2js to inline this
 // function and use faster variable access patterns.
@@ -48,11 +48,11 @@ void _createRipple(
   // Create a ripple or grab one from the pool.
   DivElement ripple;
   if (_numRipples < _maxRipples) {
-    ripple = _rippleTemplate.clone(false) as DivElement;
-    _ripplePool[_rippleIndex] = ripple;
+    ripple = _rippleTemplate!.clone(false) as DivElement;
+    _ripplePool![_rippleIndex] = ripple;
     _numRipples++;
   } else {
-    ripple = _ripplePool[_rippleIndex];
+    ripple = _ripplePool![_rippleIndex]!;
     ripple.remove();
   }
 
@@ -112,7 +112,7 @@ void _applyAnimation(
   ];
 
   ripple.style.cssText = 'top: $top; left: $left; transform: $finalTransform';
-  ripple.animate(_opacityKeyframes, _opacityTiming);
+  ripple.animate(_opacityKeyframes!, _opacityTiming);
   ripple.animate(transformKeyframes, _transformTiming);
 }
 
@@ -154,13 +154,13 @@ void _applyFallbackAnimation(
 )
 class MaterialRippleComponent implements OnDestroy {
   final HtmlElement _element;
-  EventListener _onMouseDown;
-  EventListener _onKeyDown;
+  late EventListener _onMouseDown;
+  late EventListener _onKeyDown;
 
   MaterialRippleComponent(this._element) {
     // These are initialized here instead of when they're declared because
     // dart2js would otherwise wait to initialize them until they are used.
-    _ripplePool ??= List<DivElement>(_maxRipples);
+    _ripplePool ??= List<DivElement?>.generate(_maxRipples, (_)=> null);
     _opacityTiming ??= {
       'duration': 300.0,
     };
@@ -191,10 +191,10 @@ class MaterialRippleComponent implements OnDestroy {
       // function call here.
       final clientX = (e as MouseEvent).client.x;
       final clientY = (e as MouseEvent).client.y;
-      _createRipple(clientX, clientY, _element, center);
+      _createRipple(clientX.toInt(), clientY.toInt(), _element, center);
     };
     _onKeyDown = (e) {
-      if (!isKeyboardTrigger(e)) return;
+      if (!isKeyboardTrigger(e as KeyboardEvent)) return;
       // Ripples created by a keypress are always centered.
       _createRipple(0, 0, _element, true);
     };
@@ -217,9 +217,9 @@ class MaterialRippleComponent implements OnDestroy {
   void ngOnDestroy() {
     _element.removeEventListener('mousedown', _onMouseDown);
     _element.removeEventListener('keydown', _onKeyDown);
-    _ripplePool.forEach((ripple) {
+    _ripplePool!.forEach((ripple) {
       if (ripple?.parent == _element) {
-        ripple.remove();
+        ripple!.remove();
       }
     });
   }

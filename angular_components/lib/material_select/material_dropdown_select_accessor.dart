@@ -23,17 +23,14 @@ import 'material_dropdown_select.dart';
 )
 class DropdownSelectValueAccessor<T> extends BaseDropdownSelectValueAccessor<T>
     implements ControlValueAccessor, OnDestroy {
-  StreamSubscription _selectionChangesSub;
-  DropdownSelectValueAccessor(MaterialDropdownSelectComponent select)
-      : super(select, SelectionModel.single());
+  StreamSubscription? _selectionChangesSub;
+
+  DropdownSelectValueAccessor(MaterialDropdownSelectComponent<T> select) : super(select, SelectionModel.single());
 
   @override
   void registerOnChange(callback) {
     _selectionChangesSub = selectionModel.selectionChanges.listen((_) {
-      var value = (selectionModel.selectedValues == null ||
-              selectionModel.selectedValues.isEmpty)
-          ? null
-          : selectionModel.selectedValues?.first;
+      var value = selectionModel.selectedValues.isEmpty ? null : selectionModel.selectedValues.first;
       callback(value);
     });
   }
@@ -62,22 +59,19 @@ class DropdownSelectValueAccessor<T> extends BaseDropdownSelectValueAccessor<T>
       'material-dropdown-select[multi][ngControl],'
       'material-dropdown-select[multi][ngFormControl]',
   providers: [
-    ExistingProvider.forToken(
-        ngValueAccessor, MultiDropdownSelectValueAccessor),
+    ExistingProvider.forToken(ngValueAccessor, MultiDropdownSelectValueAccessor),
   ],
 )
-class MultiDropdownSelectValueAccessor<T>
-    extends BaseDropdownSelectValueAccessor<T>
+class MultiDropdownSelectValueAccessor<T> extends BaseDropdownSelectValueAccessor<T>
     implements ControlValueAccessor, OnDestroy {
-  StreamSubscription<List<SelectionChangeRecord<T>>> selectionChangesSub;
+  StreamSubscription<List<SelectionChangeRecord<T>>>? selectionChangesSub;
 
-  MultiDropdownSelectValueAccessor(MaterialDropdownSelectComponent<T> select)
-      : super(select, MultiSelectionModel<T>());
+  MultiDropdownSelectValueAccessor(MaterialDropdownSelectComponent<T> select) : super(select, MultiSelectionModel<T>());
 
   @override
   void registerOnChange(callback) {
     selectionChangesSub = selectionModel.selectionChanges.listen((_) {
-      callback(selectionModel.selectedValues?.toList());
+      callback(selectionModel.selectedValues.toList());
     });
   }
 
@@ -101,12 +95,11 @@ class MultiDropdownSelectValueAccessor<T>
 
 /// Base [ControlValueAccessor] for material dropdown select for common logic
 /// between single, and multiple selection dropdowns.
-abstract class BaseDropdownSelectValueAccessor<T>
-    implements ControlValueAccessor, OnDestroy {
+abstract class BaseDropdownSelectValueAccessor<T> implements ControlValueAccessor, OnDestroy {
   final MaterialDropdownSelectComponent<T> _select;
   @protected
   final SelectionModel<T> selectionModel;
-  StreamSubscription _visibileSub;
+  StreamSubscription? _visibileSub;
   bool initialized = false;
 
   BaseDropdownSelectValueAccessor(this._select, this.selectionModel);
@@ -115,8 +108,7 @@ abstract class BaseDropdownSelectValueAccessor<T>
   void initializeSelectionModel() {
     if (initialized) return;
     initialized = true;
-    assert(_select.selection == null,
-        'Cannot set [selection] when using a Dropdown control value accessor.');
+    assert(_select.selection == null, 'Cannot set [selection] when using a Dropdown control value accessor.');
     _select.selection = selectionModel;
   }
 
@@ -124,7 +116,7 @@ abstract class BaseDropdownSelectValueAccessor<T>
   void registerOnTouched(callback) {
     _visibileSub = _select.visibleStream.listen((_) {
       // We only need the first event. Cancel the subscription.
-      _visibileSub.cancel();
+      _visibileSub!.cancel();
       callback();
     });
   }

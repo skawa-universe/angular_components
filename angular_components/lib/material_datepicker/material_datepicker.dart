@@ -77,7 +77,7 @@ class MaterialDatepickerComponent
 
   /// aria-label attached to the dropdown button that opens the date picker.
   @Input()
-  String ariaLabelForDropdownButton;
+  String? ariaLabelForDropdownButton;
 
   /// The format used to format dates.
   ///
@@ -91,7 +91,7 @@ class MaterialDatepickerComponent
   /// date which makes sense in your domain context. e.g. For apps which analyse
   /// historical data, this could be the current day.
   @Input()
-  Date maxDate;
+  Date? maxDate;
 
   /// Dates earlier than `minDate` cannot be chosen.
   ///
@@ -99,7 +99,7 @@ class MaterialDatepickerComponent
   /// makes sense in your domain context. e.g. The earliest date for which data
   /// is available for analysis.
   @Input()
-  Date minDate;
+  Date? minDate;
 
   /// Whether to enable compact calendar styles.
   @Input()
@@ -117,13 +117,13 @@ class MaterialDatepickerComponent
   List<RelativePosition> preferredPositions =
       RelativePosition.overlapAlignments;
 
-  final _controller = StreamController<Date>.broadcast();
+  final _controller = StreamController<Date?>.broadcast();
 
   /// Publishes events when the selected date changes.
   @Output()
-  Stream<Date> get dateChange => _controller.stream;
+  Stream<Date?> get dateChange => _controller.stream;
 
-  void _setDateInternal(Date date,
+  void _setDateInternal(Date? date,
       {CausedBy cause = CausedBy.external, bool closePopup = true}) {
     if (date == _date) return;
     _controller.add(date);
@@ -139,19 +139,19 @@ class MaterialDatepickerComponent
 
   /// The selected date.
   @Input()
-  set date(Date date) {
+  set date(Date? date) {
     _setDateInternal(date, closePopup: false);
   }
 
-  Date _date;
-  Date get date => _date;
+  Date? _date;
+  Date? get date => _date;
 
   CalendarState _calendar = CalendarState.empty();
   CalendarState get calendar => _calendar;
   set calendar(CalendarState state) {
     _calendar = state;
     if (!state.has(state.currentSelection)) return;
-    _setDateInternal(state.selection(state.currentSelection).start,
+    _setDateInternal(state.selection(state.currentSelection!).start,
         cause: CausedBy.rangeConfirm);
   }
 
@@ -191,16 +191,16 @@ class MaterialDatepickerComponent
 
   @override
   void handleEscapeKey(KeyboardEvent event) {
-    dropdownButton.focus();
+    dropdownButton!.focus();
   }
 
   @ViewChild(DropdownButtonComponent)
-  DropdownButtonComponent dropdownButton;
+  DropdownButtonComponent? dropdownButton;
 
   @ViewChild(MaterialInputComponent)
-  MaterialInputComponent textInput;
+  MaterialInputComponent? textInput;
 
-  Focusable get _focusTarget =>
+  Focusable? get _focusTarget =>
       disabled ? null : (_popupVisible ? textInput : dropdownButton);
 
   /// Gets the i18n'ed "Select a date" placeholder text.
@@ -221,7 +221,7 @@ class MaterialDatepickerComponent
       desc: 'Indicates that a single custom date is selected');
 
   String get formattedDate =>
-      date != null ? date.format(outputFormat) : selectDatePlaceHolderMsg;
+      date != null ? date!.format(outputFormat) : selectDatePlaceHolderMsg;
 
   /// Opens the calendar picker popup if not in a [disabled] state.
   void onTrigger() {
@@ -245,7 +245,7 @@ class MaterialDatepickerComponent
   }
 
   /// Label of the datepicker
-  String labelMsg;
+  late String labelMsg;
 
   /// Update the floating label. This feature is only enabled when there are
   /// preset dates defined.
@@ -269,7 +269,7 @@ class MaterialDatepickerComponent
     _setDateInternal(newDate);
   }
 
-  int _numCalendarWeekRows;
+  int? _numCalendarWeekRows;
 
   /// Sets the number of weeks the calendar should show.
   @Input()
@@ -284,12 +284,12 @@ class MaterialDatepickerComponent
   ///
   /// The picker also gets a red underline when this is set.
   @Input()
-  String error;
+  String? error;
 
   MaterialDatepickerComponent(
       HtmlElement element,
-      @Attribute('popupClass') String popupClass,
-      @Optional() @Inject(datepickerClock) Clock clock)
+      @Attribute('popupClass') String? popupClass,
+      @Optional() @Inject(datepickerClock) Clock? clock)
       : popupClassName = constructEncapsulatedCss(popupClass, element.classes) {
     clock ??= Clock();
 

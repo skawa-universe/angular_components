@@ -43,7 +43,7 @@ import 'tooltip_target.dart';
                         class="aacmtit-ink-tooltip-shadow {{popupClassName}}"
                         trackLayoutChanges
                         [preferredPositions]="positions"
-                        [source]="popupSource"
+                        [source]="popupSource!"
                         [visible]="showPopup">
           <div *deferredContent class="ink-container"
                (mouseover)="onMouseOver()"
@@ -61,22 +61,22 @@ class MaterialInkTooltipComponent implements Tooltip {
   final TooltipController _tooltipController;
   final ChangeDetectorRef _changeDetector;
 
-  PopupSource _tooltipSource;
-  PopupSource get popupSource => _tooltipSource;
+  PopupSource? _tooltipSource;
+  PopupSource? get popupSource => _tooltipSource;
 
   /// Positions at which the tooltip should try to show.
   @Input()
   List<RelativePosition> positions = RelativePosition.AdjacentBottomEdge;
 
   // Proxy control of this tooltip via the tooltip controller.
-  Tooltip _controllerProxy;
+  Tooltip? _controllerProxy;
 
   bool _showPopup = false;
   bool get showPopup => _showPopup;
 
   /// Text content of the tooltip.
   @Input()
-  String text;
+  String? text;
 
   /// Classname applied to material-popup for use with mixins.
   ///
@@ -84,7 +84,7 @@ class MaterialInkTooltipComponent implements Tooltip {
   String popupClassName;
 
   MaterialInkTooltipComponent(this._tooltipController, this._changeDetector,
-      HtmlElement hostElement, @Attribute('tooltipClass') String tooltipClass)
+      HtmlElement hostElement, @Attribute('tooltipClass') String? tooltipClass)
       : popupClassName =
             constructEncapsulatedCss(tooltipClass, hostElement.classes);
 
@@ -116,7 +116,7 @@ class MaterialInkTooltipComponent implements Tooltip {
   ///   <material-tooltip-text [for]="target">My tooltip</material-tooltip-text>
   /// ```
   @Input('for')
-  set tooltipRef(TooltipTarget target) {
+  set tooltipRef(TooltipTarget? target) {
     if (target == null) return;
     _tooltipSource = target;
     target.setTooltip(tooltipHandle);

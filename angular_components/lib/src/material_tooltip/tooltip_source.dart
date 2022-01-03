@@ -28,8 +28,7 @@ const tooltipShowDelay = Duration(milliseconds: 600);
   selector: '[tooltipSource]',
   exportAs: 'tooltipSource',
 )
-class MaterialTooltipSourceDirective extends PopupSourceDirective
-    implements Toggler, AfterViewInit, OnDestroy {
+class MaterialTooltipSourceDirective extends PopupSourceDirective implements Toggler, AfterViewInit, OnDestroy {
   @HostBinding('style.cursor')
   static const hostStyleCursor = 'pointer';
 
@@ -37,23 +36,19 @@ class MaterialTooltipSourceDirective extends PopupSourceDirective
   static const hostTabIndex = 0;
 
   @HostBinding('attr.aria-label')
-  static final tooltipLabel = Intl.message(
-      'Mouseover or press enter on this icon for more information.',
+  static final tooltipLabel = Intl.message('Mouseover or press enter on this icon for more information.',
       name: 'MaterialTooltipSourceDirective_tooltipLabel',
       desc: 'Label for help icon which opens a help center tooltip.');
 
   final HtmlElement element;
-  DelayedAction _show;
+  late DelayedAction _show;
 
   // Whether the mouse is currently inside the component.
   bool _isMouseInside = false;
 
-  MaterialTooltipSourceDirective(
-      DomPopupSourceFactory domPopupSourceFactory,
-      this.element,
+  MaterialTooltipSourceDirective(DomPopupSourceFactory domPopupSourceFactory, this.element,
       @Attribute('initPopupAriaAttributes') String initAriaAttributes)
-      : super(domPopupSourceFactory, element, /* referenceDirective */ null,
-            /* focusable */ null, initAriaAttributes) {
+      : super(domPopupSourceFactory, element, /* referenceDirective */ null, /* focusable */ null, initAriaAttributes) {
     _show = DelayedAction(tooltipShowDelay, activate);
   }
 
@@ -111,5 +106,5 @@ class MaterialTooltipSourceDirective extends PopupSourceDirective
     _popupRef = popupRef;
   }
 
-  Toggleable _popupRef;
+  late Toggleable _popupRef;
 }

@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:built_collection/built_collection.dart';
-import 'package:meta/meta.dart';
 import 'package:observable/observable.dart';
 import 'package:quiver/core.dart' show Optional;
 import 'package:quiver/strings.dart';
@@ -18,10 +17,9 @@ import 'package:angular_components/model/ui/icon.dart';
 /// When used in the MenuItemGroupsComponent, the component will allow both
 /// single- and multi-select. A single-select group will have a left indicator,
 /// while the multi-select group will have check marks.
-class MenuItemGroupWithSelection<SelectionItemType>
-    extends MenuItemGroup<SelectableMenuItem<SelectionItemType>>
+class MenuItemGroupWithSelection<SelectionItemType> extends MenuItemGroup<SelectableMenuItem<SelectionItemType>>
     implements Selectable<SelectionItemType> {
-  final SelectionModel<SelectionItemType> selectionModel;
+  final SelectionModel<SelectionItemType>? selectionModel;
 
   /// The `role` attribute each menu item should apply.
   ///
@@ -37,15 +35,12 @@ class MenuItemGroupWithSelection<SelectionItemType>
   final bool shouldCloseMenuOnSelection;
 
   MenuItemGroupWithSelection(
-      {@required List<SelectableMenuItem<SelectionItemType>> items,
-      @required this.selectionModel,
-      String label,
-      bool shouldCloseMenuOnSelection})
-      : shouldCloseMenuOnSelection = shouldCloseMenuOnSelection ??
-            selectionModel is! MultiSelectionModel,
-        itemsRole = (selectionModel?.isSingleSelect ?? true)
-            ? 'menuitemradio'
-            : 'menuitemcheckbox',
+      {required List<SelectableMenuItem<SelectionItemType>> items,
+      required this.selectionModel,
+      String? label,
+      bool? shouldCloseMenuOnSelection})
+      : shouldCloseMenuOnSelection = shouldCloseMenuOnSelection ?? selectionModel is! MultiSelectionModel,
+        itemsRole = (selectionModel?.isSingleSelect ?? true) ? 'menuitemradio' : 'menuitemcheckbox',
         super(items, label);
 
   /// True if the selection model is multi-select.
@@ -66,12 +61,11 @@ class MenuItemGroupWithSelection<SelectionItemType>
 }
 
 /// A selectable [MenuItem].
-class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
-    implements MenuItem {
-  MenuAction _action;
-  ActionWithContext _actionWithContext;
+class SelectableMenuItem<ItemType> extends PropertyChangeNotifier implements MenuItem {
+  MenuAction? _action;
+  ActionWithContext? _actionWithContext;
   SelectableOption _selectableState;
-  String ariaChecked;
+  String? ariaChecked;
 
   /// Converts [ItemType] into a string.
   ///
@@ -92,16 +86,16 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
   final bool shouldSelectOnItemClick;
 
   @override
-  final Icon icon;
+  final Icon? icon;
 
   @override
-  final MenuModel subMenu;
+  final MenuModel? subMenu;
 
   @override
-  final String tooltip;
+  final String? tooltip;
 
   @override
-  final String labelAnnotation;
+  final String?labelAnnotation;
 
   @override
   final ObservableList<MenuItemAffix> itemSuffixes;
@@ -110,7 +104,7 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
   final BuiltList<String> cssClasses;
 
   @override
-  final String secondaryLabel;
+  final String? secondaryLabel;
 
   /// The constructor for a selectable [MenuItem].
   ///
@@ -125,30 +119,26 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
   ///     constructing an ObservableList and using [itemSuffixes]. If
   ///     [itemSuffixes] is also passed in, [itemSuffixes] takes precedence.
   SelectableMenuItem(
-      {@required this.value,
+      {required this.value,
       this.itemRenderer = defaultItemRenderer,
       this.icon,
       this.subMenu,
       this.tooltip,
       this.secondaryLabel,
       this.labelAnnotation,
-      Iterable<String> cssClasses,
-      MenuAction action,
-      ActionWithContext actionWithContext,
+      Iterable<String>? cssClasses,
+      MenuAction? action,
+      ActionWithContext? actionWithContext,
       SelectableOption selectableState = SelectableOption.Selectable,
-      bool shouldSelectOnItemClick,
-      MenuItemAffix itemSuffix,
-      ObservableList<MenuItemAffix> itemSuffixes})
+      bool? shouldSelectOnItemClick,
+      MenuItemAffix? itemSuffix,
+      ObservableList<MenuItemAffix>? itemSuffixes})
       : _selectableState = selectableState,
         shouldSelectOnItemClick = shouldSelectOnItemClick ?? subMenu == null,
-        itemSuffixes = itemSuffixes ??
-            ObservableList<MenuItemAffix>.from(
-                Optional.fromNullable(itemSuffix)),
-        cssClasses = BuiltList<String>(cssClasses ?? const []) {
-    assert(itemSuffix == null || itemSuffixes == null,
-        'Only one of itemSuffix or itemSuffixes should be provided');
-    assert(action == null || actionWithContext == null,
-        'Only one of action or actionWithContext should be provided');
+        itemSuffixes = itemSuffixes ?? ObservableList<MenuItemAffix>.from(Optional.fromNullable(itemSuffix)),
+        cssClasses = BuiltList<String>(cssClasses ?? <String>[]) {
+    assert(itemSuffix == null || itemSuffixes == null, 'Only one of itemSuffix or itemSuffixes should be provided');
+    assert(action == null || actionWithContext == null, 'Only one of action or actionWithContext should be provided');
     if (action != null) {
       _action = action;
       _actionWithContext = (_) => action();
@@ -177,7 +167,7 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
   bool get showTooltip => isNotEmpty(tooltip);
 
   @override
-  Icon get uiIcon => icon;
+  Icon? get uiIcon => icon;
 
   @override
   String get uiDisplayName => label;
@@ -186,32 +176,31 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
   bool get enabled => selectableState == SelectableOption.Selectable;
 
   @override
-  set enabled(bool value) {
-    selectableState =
-        value ? SelectableOption.Selectable : SelectableOption.Disabled;
+  set enabled(bool? value) {
+    selectableState = value == true ? SelectableOption.Selectable : SelectableOption.Disabled;
   }
 
   @override
-  MenuAction get action => _action;
+  MenuAction? get action => _action;
 
   @override
-  set action(MenuAction value) {
+  set action(MenuAction? value) {
     if (value == _action) return;
 
     _action = value;
-    _actionWithContext = (_) => value();
+    _actionWithContext = (_) => value!();
     notifyPropertyChange(#action, _action, value);
   }
 
   @override
-  ActionWithContext get actionWithContext => _actionWithContext;
+  ActionWithContext? get actionWithContext => _actionWithContext;
 
   @override
-  set actionWithContext(ActionWithContext value) {
+  set actionWithContext(ActionWithContext? value) {
     if (value == _actionWithContext) return;
 
     _actionWithContext = value;
-    _action = () => value(null);
+    _action = () => value!(null);
     notifyPropertyChange(#actionWithContext, _actionWithContext, value);
   }
 
@@ -230,4 +219,5 @@ class SelectableMenuItem<ItemType> extends PropertyChangeNotifier
 }
 
 void _noOp() {}
+
 void _noOp2(_) {}

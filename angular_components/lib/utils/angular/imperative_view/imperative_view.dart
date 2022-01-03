@@ -59,7 +59,6 @@ import 'package:angular_components/utils/disposer/disposer.dart';
 ///     class ItemComponent {
 ///       String value;
 ///     }
-@Injectable()
 class AcxImperativeViewUtils {
   final ComponentLoader _componentLoader;
   final DomService _domService;
@@ -68,13 +67,10 @@ class AcxImperativeViewUtils {
 
   /// Returns a future that completes with a new instance created by
   /// [componentFactory], once it is inserted [intoDomElement].
-  Future<ComponentRef<T>> insertComponent<T>(
-      ComponentFactory<T> componentFactory,
-      ViewContainerRef viewContainer,
-      HtmlElement intoDomElement,
-      {Injector injector}) async {
-    final ref = _componentLoader.loadNextToLocation<T>(
-        componentFactory, viewContainer,
+  Future<ComponentRef<T>> insertComponent<T extends Object>(
+      ComponentFactory<T> componentFactory, ViewContainerRef viewContainer, HtmlElement intoDomElement,
+      {Injector? injector}) async {
+    final ref = _componentLoader.loadNextToLocation<T>(componentFactory, viewContainer,
         injector: injector ?? viewContainer.parentInjector);
     await _domService.onWrite();
     intoDomElement.append(ref.location);
@@ -87,8 +83,8 @@ class AcxImperativeViewUtils {
   /// The returned instance can be destroyed by disposing it.
   ///
   /// **WARNING**: This code is experimental.
-  Future<ImperativeViewRef> insertAngularView(HtmlElement intoDomElement,
-      TemplateRef templateRef, ViewContainerRef viewContainer) {
+  Future<ImperativeViewRef> insertAngularView(
+      HtmlElement intoDomElement, TemplateRef templateRef, ViewContainerRef viewContainer) {
     return _domService.onWrite().then((_) {
       var viewRef = viewContainer.createEmbeddedView(templateRef);
       for (final rootNode in viewRef.rootNodes) {

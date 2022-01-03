@@ -11,13 +11,11 @@ import 'package:angular/angular.dart';
 /// Returns the current browser's [Document].
 ///
 /// Visible for transformer only.
-@Injectable()
 HtmlDocument getDocument() => document;
 
 /// Returns the current browser's [Window].
 ///
 /// Visible for transformer only.
-@Injectable()
 Window getWindow() => window;
 
 /// Provides [Document], [HtmlDocument], and [Window] bound for use
@@ -47,7 +45,6 @@ const windowModule = Module(provide: [
 /// is used for much more than changing the location.
 ///
 /// Visible for transformer only.
-@Injectable()
 Location getLocation(Window window) => window.location;
 
 /// Provides [Location] bound for use within Angular.

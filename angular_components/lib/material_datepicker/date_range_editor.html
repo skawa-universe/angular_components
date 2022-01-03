@@ -8,7 +8,8 @@
                  [width]="0"
                  class="preset-list"
                  [class.basic-preset-list]="isBasic"
-                 *ngIf="shouldShowPredefinedList" acxScrollHost>
+                 *ngIf="shouldShowPredefinedList"
+                 acxScrollHost>
   <div *ngIf="supportsClearRange" class="group">
     <material-select-item focusItem (trigger)="onClearRangeClicked">
       {{clearRangeMsg}}
@@ -41,7 +42,7 @@
                           [selected]="isSelected(preset.range)"
                           [closeOnActivate]="false">
         {{preset.title}}
-        <template [ngIf]="preset.alternatives != null && preset.alternatives.isNotEmpty">
+        <template [ngIf]="preset.alternatives != null && preset.alternatives!.isNotEmpty">
           <material-button icon
                            class="preset-dropdown-button"
                            popupSource

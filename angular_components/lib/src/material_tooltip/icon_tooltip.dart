@@ -104,12 +104,8 @@ class MaterialIconTooltipComponent implements DeferredContentAware {
   @Input('offsetY')
   int offsetY = 0;
 
-  MaterialIconTooltipComponent(
-      AcxDarkTheme darkTheme,
-      this.element,
-      @Attribute('icon') String icon,
-      @Attribute('type') String type,
-      @Attribute('size') String size)
+  MaterialIconTooltipComponent(AcxDarkTheme darkTheme, this.element, @Attribute('icon') String? icon,
+      @Attribute('type') String? type, @Attribute('size') String? size)
       : icon = icon ?? '${type ?? "help"}_outline',
         iconSize = size ?? 'medium' {
     assert(type == 'help' || type == 'info' || type == 'error' || type == null);
@@ -124,11 +120,11 @@ class MaterialIconTooltipComponent implements DeferredContentAware {
   }
 
   @ViewChild('tooltipRef')
-  TooltipBehavior tooltipBehavior;
+  TooltipBehavior? tooltipBehavior;
 
   @ViewChild(MaterialPaperTooltipComponent)
-  set deferredContentAware(DeferredContentAware deferredContentAware) {
-    _contentVisible.addStream(deferredContentAware.contentVisible);
+  set deferredContentAware(DeferredContentAware? deferredContentAware) {
+    _contentVisible.addStream(deferredContentAware!.contentVisible);
   }
 
   @override
