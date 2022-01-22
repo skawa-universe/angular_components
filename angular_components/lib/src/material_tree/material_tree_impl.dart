@@ -65,7 +65,7 @@ class MaterialTreeComponent<T> with MaterialTreeRoot<T>, SelectionContainer<T> {
   /// rendering an item.
   @Input()
   @override
-  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) {
+  set factoryRenderer(FactoryRenderer<RendersValue, T>? value) {
     super.factoryRenderer = value;
   }
 

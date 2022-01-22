@@ -109,7 +109,7 @@ class MaterialSelectItemComponent<T> extends ButtonDirective
   /// update the component.
   @Input()
   @override
-  FactoryRenderer<RendersValue, T?>? factoryRenderer;
+  FactoryRenderer<RendersValue, T>? factoryRenderer;
 
   /// If true, check marks are used instead of checkboxes to indicate whether or
   /// not the item is selected for multi-select items.
@@ -180,7 +180,7 @@ class MaterialSelectItemComponent<T> extends ButtonDirective
   @Input()
   bool closeOnActivate = true;
 
-  ComponentFactory? get componentFactory => factoryRenderer != null ? factoryRenderer!(value) : null;
+  ComponentFactory? get componentFactory => factoryRenderer != null ? factoryRenderer!(value!) : null;
 
   @HostBinding('attr.aria-checked')
   String? get isAriaChecked => !supportsMultiSelect || hideCheckbox ? null : isSelected.toString();

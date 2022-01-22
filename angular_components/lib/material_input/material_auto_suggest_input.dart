@@ -314,7 +314,7 @@ class MaterialAutoSuggestInputComponent<T> extends MaterialSelectBase<T>
   /// [FactoryRenderer] used to display the item.
   @override
   @Input()
-  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) => super.factoryRenderer = value;
+  set factoryRenderer(FactoryRenderer<RendersValue, T>? value) => super.factoryRenderer = value;
 
   /// Function for use by NgFor for optionGroup to avoid recreating the
   /// DOM for the optionGroup.
@@ -470,7 +470,7 @@ class MaterialAutoSuggestInputComponent<T> extends MaterialSelectBase<T>
   bool highlightOptions = true;
 
   @override
-  FactoryRenderer<RendersValue, T?> get factoryRenderer =>
+  FactoryRenderer<RendersValue, T>? get factoryRenderer =>
       highlightOptions && super.factoryRenderer == null ? highlightFactoryRenderer : super.factoryRenderer!;
 
   final _showPopupController = StreamController<bool>.broadcast(sync: true);

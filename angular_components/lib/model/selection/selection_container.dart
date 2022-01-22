@@ -26,7 +26,7 @@ abstract class SelectionContainer<T>
   /// Specifies the factoryRenderer to use to determine the factory for
   /// rendering an item.
   @override
-  FactoryRenderer<RendersValue, T?>? factoryRenderer;
+  FactoryRenderer<RendersValue, T>? factoryRenderer;
 }
 
 /// A type of component which renders an item from a `SelectionModel`.

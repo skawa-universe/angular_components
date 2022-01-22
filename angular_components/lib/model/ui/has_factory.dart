@@ -18,5 +18,5 @@ typedef FactoryRenderer<T extends RendersValue, I> = ComponentFactory Function(I
 /// HasFactoryRenderer defines a method that takes in an item and returns the
 /// factory to use to render the item.
 abstract class HasFactoryRenderer<T extends RendersValue, I> {
-  late FactoryRenderer<T, I?>? factoryRenderer;
+  late FactoryRenderer<T, I>? factoryRenderer;
 }

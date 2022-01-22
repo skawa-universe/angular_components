@@ -243,7 +243,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
   /// The resulting component must implement RendersValue.
   @Input()
   @override
-  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) {
+  set factoryRenderer(FactoryRenderer<RendersValue, T>? value) {
     super.factoryRenderer = value;
   }
 

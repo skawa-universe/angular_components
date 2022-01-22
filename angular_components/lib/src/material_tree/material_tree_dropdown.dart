@@ -159,7 +159,7 @@ class MaterialTreeDropdownComponent<T>
   /// rendering an item.
   @Input()
   @override
-  set factoryRenderer(FactoryRenderer<RendersValue, T?>? value) {
+  set factoryRenderer(FactoryRenderer<RendersValue, T>? value) {
     super.factoryRenderer = value;
   }
 
