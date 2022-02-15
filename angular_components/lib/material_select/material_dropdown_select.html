@@ -68,9 +68,9 @@
                     [selected]="isDeselectItemSelected"
                     [value]="deselectLabel"
                     (trigger)="deselectCurrentSelection()"
-                    [itemActive]="popup.showPopup && activeModel.isActive(deselectLabel)"
+                    [itemActive]="popup.showPopup && activeModel.isActive(null)"
                     [id]="activeModel.id(deselectLabel)"
-                    (mouseenter)="activeModel.activate(deselectLabel)">
+                    (mouseenter)="activeModel.activate(null)">
             </material-select-dropdown-item>
             <div *ngFor="let group of options!.optionGroups; trackBy: trackByIndexFn"
                  group

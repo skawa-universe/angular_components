@@ -32,27 +32,27 @@ abstract class Tab extends Focusable {
 /// property. Tab contents can be lazily instantiated by using the
 /// `*deferredContent` template directive.
 @Component(
-  selector: 'material-tab',
-  providers: [
-    ExistingProvider(Tab, MaterialTabComponent),
-    ExistingProvider(DeferredContentAware, MaterialTabComponent),
-  ],
-  template: '''
+    selector: 'material-tab',
+    providers: [
+      ExistingProvider(Tab, MaterialTabComponent),
+      ExistingProvider(DeferredContentAware, MaterialTabComponent),
+    ],
+    template: '''
         <div class="tab-content" *ngIf="active">
           <ng-content></ng-content>
         </div>''',
-  styleUrls: ['material_tab.scss.css'],
-  directives: [NgIf],
-)
-class MaterialTabComponent extends RootFocusable
-    implements Tab, DeferredContentAware {
+    styleUrls: ['material_tab.scss.css'],
+    directives: [NgIf],
+    changeDetection: ChangeDetectionStrategy.OnPush)
+class MaterialTabComponent extends RootFocusable implements Tab, DeferredContentAware {
   @HostBinding('attr.role')
   static const hostRole = 'tabpanel';
 
   final String _uuid;
   final _visible = StreamController<bool>.broadcast(sync: true);
+  final ChangeDetectorRef _changeDetectorRef;
 
-  MaterialTabComponent(HtmlElement element, @Optional() IdGenerator? idGenerator)
+  MaterialTabComponent(this._changeDetectorRef, HtmlElement element, @Optional() IdGenerator? idGenerator)
       : _uuid = (idGenerator ?? SequentialIdGenerator.fromUUID()).nextId(),
         super(element);
 
@@ -65,12 +65,14 @@ class MaterialTabComponent extends RootFocusable
   void deactivate() {
     _active = false;
     _visible.add(false);
+    _changeDetectorRef.markForCheck();
   }
 
   @override
   void activate() {
     _active = true;
     _visible.add(true);
+    _changeDetectorRef.markForCheck();
   }
 
   @override

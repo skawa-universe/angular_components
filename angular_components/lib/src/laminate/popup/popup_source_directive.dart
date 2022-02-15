@@ -56,7 +56,7 @@ class PopupSourceDirective implements ElementPopupSource, AfterViewInit, OnDestr
   }
 
   @override
-  HtmlElement get sourceElement => _element!;
+  HtmlElement? get sourceElement => _element;
 
   @override
   Alignment get alignOriginX => _popupSource!.alignOriginX;

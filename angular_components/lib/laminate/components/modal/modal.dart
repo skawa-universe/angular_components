@@ -248,7 +248,7 @@ class ModalComponent
   // Make the overlay hosting this modal visible.
   //
   // If it has a parent, we should temporarily hide it.
-  void _showModalOverlay({bool temporary = false}) {
+  bool _showModalOverlay({bool temporary = false}) {
     if (!temporary) {
       _saveFocus();
       if (_stack != null) {
@@ -258,12 +258,13 @@ class ModalComponent
       }
     }
     _resolvedOverlayRef.setVisible(true);
+    return true;
   }
 
   // Make the overlay hosting this modal hidden.
   //
   // If it has a parent, we should re-show it.
-  void _hideModalOverlay({bool temporary = false}) {
+  bool _hideModalOverlay({bool temporary = false}) {
     if (!temporary) {
       _restoreFocus();
       if (_stack != null) {
@@ -273,6 +274,7 @@ class ModalComponent
       }
     }
     _resolvedOverlayRef.setVisible(false);
+    return false;
   }
 
   void _saveFocus() {
@@ -302,7 +304,7 @@ class ModalComponent
   @override
   Future<bool> open() {
     if (_pendingOpen == null) {
-      final controller = AsyncActionController<dynamic>();
+      final controller = AsyncActionController<bool>();
       controller.execute(_showModalOverlay);
       _pendingOpen = controller.action.onDone.then((completed) {
         _pendingOpen = null;
@@ -316,7 +318,7 @@ class ModalComponent
   @override
   Future<bool> close() {
     if (_pendingClose == null) {
-      final controller = AsyncActionController<dynamic>();
+      final controller = AsyncActionController<bool>();
       controller.execute(_hideModalOverlay);
       _pendingClose = controller.action.onDone.then((completed) {
         _pendingClose = null;

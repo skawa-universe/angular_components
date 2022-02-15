@@ -84,7 +84,7 @@ class DomRulerImpl extends RulerBase<Element> implements DomRuler {
 
   @override
   void setCssPropertySync(
-      Element element, String propertyName, String propertyValue) {
+      Element element, String propertyName, String? propertyValue) {
     element.style.setProperty(propertyName, propertyValue);
   }
 }

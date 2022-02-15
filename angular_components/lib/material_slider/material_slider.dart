@@ -125,32 +125,32 @@ class MaterialSliderComponent implements AfterChanges, HasDisabled {
   /// Verifies that the input values of this control are consistent.
   @override
   void ngAfterChanges() {
-    assert(() {
-      checkArgument(min < max, message: 'Failed assertion: ${min} < ${max}');
-      checkArgument(step > 0, message: 'Failed assertion: ${step} > 0');
-      checkArgument(_divisible(max - min, step),
-          message: 'Failed assertion: (${max} - ${min}) % ${step} ~ 0.');
-      checkArgument(value >= min,
-          message: 'Failed assertion: ${value} >= ${min}');
-      checkArgument(value <= max,
-          message: 'Failed assertion: ${value} <= ${max}');
-      checkArgument(_divisible(value - min, step),
-          message: 'Failed assertion: (${value} - ${min}) % ${step} ~ 0.');
-
-      if (isTwoSided) {
-        checkArgument(leftValue <= value,
-            message: 'Failed assertion: ${leftValue} <= ${value}');
-        checkArgument(leftValue >= min,
-            message: 'Failed assertion: ${leftValue} >= ${min}');
-        // Redundant check but done for consistency.
-        checkArgument(leftValue <= max,
-            message: 'Failed assertion: ${leftValue} <= ${max}');
-        checkArgument(_divisible(leftValue - min, step),
-            message:
-                'Failed assertion: (${leftValue} - ${min}) % ${step} ~ 0.');
-      }
-      return true;
-    }());
+    // assert(() {
+    //   checkArgument(min < max, message: 'Failed assertion: ${min} < ${max}');
+    //   checkArgument(step > 0, message: 'Failed assertion: ${step} > 0');
+    //   checkArgument(_divisible(max - min, step),
+    //       message: 'Failed assertion: (${max} - ${min}) % ${step} ~ 0.');
+    //   checkArgument(value >= min,
+    //       message: 'Failed assertion: ${value} >= ${min}');
+    //   checkArgument(value <= max,
+    //       message: 'Failed assertion: ${value} <= ${max}');
+    //   checkArgument(_divisible(value - min, step),
+    //       message: 'Failed assertion: (${value} - ${min}) % ${step} ~ 0.');
+    //
+    //   if (isTwoSided) {
+    //     checkArgument(leftValue <= value,
+    //         message: 'Failed assertion: ${leftValue} <= ${value}');
+    //     checkArgument(leftValue >= min,
+    //         message: 'Failed assertion: ${leftValue} >= ${min}');
+    //     // Redundant check but done for consistency.
+    //     checkArgument(leftValue <= max,
+    //         message: 'Failed assertion: ${leftValue} <= ${max}');
+    //     checkArgument(_divisible(leftValue - min, step),
+    //         message:
+    //             'Failed assertion: (${leftValue} - ${min}) % ${step} ~ 0.');
+    //   }
+    //   return true;
+    // }());
   }
 
   bool _divisible(num value, num step) {

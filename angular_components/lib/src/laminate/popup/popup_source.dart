@@ -71,10 +71,10 @@ abstract class PopupSource {
 
 /// An [PopupSource] that's based on an element.
 abstract class ElementPopupSource implements PopupSource, Focusable {
-  HtmlElement get sourceElement;
+  HtmlElement? get sourceElement;
 
   @override
-  Rectangle? get dimensions => sourceElement.getBoundingClientRect();
+  Rectangle? get dimensions => sourceElement?.getBoundingClientRect();
 }
 
 /// An immutable [PopupSource] implementation based on a predefined polygon.

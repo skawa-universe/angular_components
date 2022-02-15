@@ -229,7 +229,7 @@ abstract class TooltipTarget extends PopupSourceDirective {
   @override
   void onOpen() {
     if (_id == null) return;
-    _previousDescribedbyId = _element.getAttribute('aria-describedby')!;
+    _previousDescribedbyId = _element.getAttribute('aria-describedby');
     _element.setAttribute('aria-describedby', _id!);
   }
 

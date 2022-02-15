@@ -148,7 +148,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
 
   /// Whether to show the bottom border of the dropdown button.
   @Input()
-  late bool showButtonBorder;
+  bool? showButtonBorder;
 
   bool _deselectOnActivate = true;
 
@@ -213,13 +213,13 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
 
   // The id of the currently selected item, or the first item if none are
   // selected.
-  String get ariaActiveDescendant {
+  String? get ariaActiveDescendant {
     if (!visible) return '';
 
-    if (_ariaActiveDescendant != null) return _ariaActiveDescendant!;
+    if (_ariaActiveDescendant != null) return _ariaActiveDescendant;
 
     if (options != null) {
-      return activeModel.activeId!;
+      return activeModel.activeId;
     }
 
     return '';
@@ -227,7 +227,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
 
   /// The id of the active element of the dropdown.
   @Input()
-  set ariaActiveDescendant(String id) {
+  set ariaActiveDescendant(String? id) {
     _ariaActiveDescendant = id;
   }
 
@@ -532,7 +532,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
 
   void deselectCurrentSelection() {
     if (selection!.isNotEmpty) {
-      selection!.deselect(selection!.selectedValues.single);
+      selection!.clear();
     }
   }
 }
