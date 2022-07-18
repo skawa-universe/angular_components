@@ -102,7 +102,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
   final TrackByFn trackByIndexFn = indexIdentityFn;
 
   /// Keeps track of the active item.
-  final ActiveItemModel activeModel;
+  final ActiveItemModel<dynamic> activeModel;
 
   /// The id for the contained material-list.
   final String listId;
@@ -200,7 +200,7 @@ class MaterialDropdownSelectComponent<T> extends MaterialSelectBase<T>
       @Attribute('buttonAriaRole') this.buttonAriaRole,
       this._changeDetector,
       HtmlElement element)
-      : activeModel = ActiveItemModel(idGenerator),
+      : activeModel = ActiveItemModel<dynamic>(idGenerator),
         popupClassName = constructEncapsulatedCss(popupClass, element.classes),
         listId = (idGenerator ?? SequentialIdGenerator.fromUUID()).nextId() {
     isRtl = rtl;
